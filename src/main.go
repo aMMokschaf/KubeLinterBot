@@ -80,7 +80,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		s.log("Only POST allowed.")
-		//return
+		return
 	}
 
 	reqBody, err := ioutil.ReadAll(r.Body) //TODO ReadAll may be bad for large messages
