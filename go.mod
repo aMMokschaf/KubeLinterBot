@@ -1,3 +1,3 @@
-module kube-linter-bot
+module main
 
 go 1.15
