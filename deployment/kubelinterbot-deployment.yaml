@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubelinterbot
+  labels:
+    app: kubelinterbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubelinterbot
+  template:
+    metadata:
+      labels:
+        app: kubelinterbot
+    spec:
+      containers:
+      - name: kubelinterbot
+        image: kubelinterbot:0.1
+        imagePullPolicy: Never  # delete after upload
+        ports:
+        - containerPort: 4567
+        # env:
+        #   - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+        #     valueFrom:
+        #       secretKeyRef:
+        #         name: kubelinterbot-secret
+        #         key: github-username
+        #   - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+        #     valueFrom:
+        #       secretKeyRef:
+        #         name: mongodb-secret
+        #         key: mongo-root-password
+        #   - name: ME_CONFIG_MONGODB_SERVER
+        #     valueFrom:
+        #       configMapKeyRef:
+        #         name: mongodb-configmap
+        #         key: database_url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubelinterbot-service
+spec:
+  selector:
+    app: kubelinterbot
+  ports:
+    - protocol: TCP
+      port: 4567
+      targetPort: 4567
