@@ -6,21 +6,18 @@ import (
 	"main/internal/callkubelinter"
 	"main/internal/getcommit"
 	"main/internal/handleresult"
+	"main/internal/parsehook"
 	"main/internal/postcomment"
 	"net/http"
 	"os"
 	"time"
-	//"gopkg.in/go-playground/webhooks.v5/github"
 )
 
 //Sets up a logger, a webHookServer, prints the address and port, starts the server
 func main() {
 	logger := log.New(os.Stdout, "", 0)
-
 	webHookServ := setupServer(logger)
-
 	logger.Printf("KubeLinterBot is listening on http://localhost%s\n", webHookServ.Addr) //TODO: Address
-
 	webHookServ.ListenAndServe()
 
 	/*
@@ -91,7 +88,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.log("Webhook received.")
 	makeJSON(s, reqBody)*/
 
-	//parse hook
+	parsehook.ParseHook()
 	getcommit.GetCommit()
 	callkubelinter.Callkubelinter()
 	handleresult.HandleResult()
@@ -99,10 +96,11 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
+/*
 //TODO: Parse JSON. Marshal? Decode?
 func makeJSON(s *Server, body []byte) {
 	s.log("\n%s", body)
-}
+}*/
 
 func (s *Server) log(format string, v ...interface{}) {
 	s.logger.Printf(format+"\n", v...)
