@@ -88,7 +88,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.log("Webhook received.")
 	makeJSON(s, reqBody)*/
 
-	parsehook.ParseHook()
+	parsehook.ParseHook(r)
 	getcommit.GetCommit()
 	callkubelinter.Callkubelinter()
 	handleresult.HandleResult()
@@ -107,5 +107,7 @@ func (s *Server) log(format string, v ...interface{}) {
 }
 
 func (s *Server) index(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("KubeLinterBot is running here."))
+	//w.Write([]byte("KubeLinterBot is running here."))
+	parsehook.ParseHook(r)
+
 }
