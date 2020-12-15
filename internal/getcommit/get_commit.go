@@ -1,3 +1,9 @@
 package getcommit
 
-//empty file
+import (
+	"fmt"
+)
+
+func GetCommit() {
+	fmt.Println("get commit method")
+}

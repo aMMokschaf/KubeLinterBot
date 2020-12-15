@@ -4,6 +4,9 @@ import (
 	"io/ioutil"
 	"log"
 	"main/internal/callkubelinter"
+	"main/internal/getcommit"
+	"main/internal/handleresult"
+	"main/internal/postcomment"
 	"net/http"
 	"os"
 	"time"
@@ -17,7 +20,6 @@ func main() {
 	webHookServ := setupServer(logger)
 
 	logger.Printf("KubeLinterBot is listening on http://localhost%s\n", webHookServ.Addr) //TODO: Address
-	callkubelinter.Callkubelinter()
 
 	webHookServ.ListenAndServe()
 
@@ -75,7 +77,7 @@ func logWith(logger *log.Logger) Option {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	/*if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		s.log("Only POST allowed.")
 		return
@@ -87,7 +89,14 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.log("Webhook received.")
-	makeJSON(s, reqBody)
+	makeJSON(s, reqBody)*/
+
+	//parse hook
+	getcommit.GetCommit()
+	callkubelinter.Callkubelinter()
+	handleresult.HandleResult()
+	postcomment.PostComment()
+
 }
 
 //TODO: Parse JSON. Marshal? Decode?

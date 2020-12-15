@@ -1,3 +1,9 @@
-package postcommit
+package postcomment
 
-//empty file
+import (
+	"fmt"
+)
+
+func PostComment() {
+	fmt.Println("post comment method")
+}
