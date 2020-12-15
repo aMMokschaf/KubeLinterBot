@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
+	"main/internal/callkubelinter"
 	"net/http"
 	"os"
 	"time"
+	//"gopkg.in/go-playground/webhooks.v5/github"
 )
 
 //Sets up a logger, a webHookServer, prints the address and port, starts the server
@@ -16,6 +17,7 @@ func main() {
 	webHookServ := setupServer(logger)
 
 	logger.Printf("KubeLinterBot is listening on http://localhost%s\n", webHookServ.Addr) //TODO: Address
+	callkubelinter.Callkubelinter()
 
 	webHookServ.ListenAndServe()
 
@@ -39,7 +41,6 @@ func setupServer(logger *log.Logger) *http.Server {
 		Addr:    ":4567", //TODO: hardcoded is bad
 		Handler: newServer(logWith(logger)),
 
-		//TODO: standard, check if that makes sense
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  60 * time.Second,
@@ -60,10 +61,7 @@ func newServer(options ...Option) *Server {
 
 	s.mux = http.NewServeMux()
 
-	//Multiplexer, maybe need several paths?
 	s.mux.HandleFunc("/", s.index)
-	s.mux.HandleFunc("/push/", s.push)
-	s.mux.HandleFunc("/pull/", s.pull)
 
 	return s
 }
@@ -87,6 +85,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	s.log("Webhook received.")
 	makeJSON(s, reqBody)
 }
@@ -102,14 +101,4 @@ func (s *Server) log(format string, v ...interface{}) {
 
 func (s *Server) index(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("KubeLinterBot is running here."))
-}
-
-func (s *Server) push(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("KubeLinterBot has received a push"))
-	fmt.Println("push")
-}
-
-func (s *Server) pull(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("KubeLinterBot has received a pull"))
-	fmt.Println("pull")
 }
