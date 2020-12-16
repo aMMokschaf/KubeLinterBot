@@ -50,19 +50,22 @@ func ParseHook(r *http.Request) ([]string, []string) {
 			fmt.Println(err)
 		}
 	}
+	var added []string
+	var modified []string
+
 	switch payload.(type) {
 
 	case github.PushPayload:
 		fmt.Println("push payload")
 		Commits := payload.(github.PushPayload)
-		return parseHookPush(Commits)
-
+		added, modified = parseHookPush(Commits)
 		fmt.Printf("%+v", Commits)
 
-		/*case github.PullRequestPayload:
+	case github.PullRequestPayload:
 		fmt.Println("pull request payload")
 		pullRequest := payload.(github.PullRequestPayload)
-		//parseHookPullRequestToStruct(pullRequest)
-		fmt.Printf("%+v", pullRequest)*/
+		//added, modified = parseHookPullRequestToStruct(pullRequest)
+		fmt.Printf("%+v", pullRequest)
 	}
+	return added, modified
 }
