@@ -13,6 +13,12 @@ import (
 	"time"
 )
 
+type config struct {
+	repository  string
+	accessToken string
+	port        int
+}
+
 //Sets up a logger, a webHookServer, prints the address and port, starts the server
 func main() {
 	logger := log.New(os.Stdout, "", 0)
@@ -88,8 +94,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.log("Webhook received.")
 	makeJSON(s, reqBody)*/
 
-	parsehook.ParseHook(r)
-	getcommit.GetCommit()
+	var added []string
+	var modified []string
+
+	added, modified = parsehook.ParseHook(r)
+
+	getcommit.GetCommit(added, modified)
 	callkubelinter.Callkubelinter()
 	handleresult.HandleResult()
 	postcomment.PostComment()
@@ -108,6 +118,6 @@ func (s *Server) log(format string, v ...interface{}) {
 
 func (s *Server) index(w http.ResponseWriter, r *http.Request) {
 	//w.Write([]byte("KubeLinterBot is running here."))
-	parsehook.ParseHook(r)
+	//parsehook.ParseHook(r)
 
 }
