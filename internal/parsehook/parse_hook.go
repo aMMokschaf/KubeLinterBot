@@ -3,11 +3,12 @@ package parsehook
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"gopkg.in/go-playground/webhooks.v5/github"
 )
 
-func parseHookPullRequest(pullRequest github.PullRequestPayload) []string {
+func parseHookPullRequestToStruct(pullRequest github.PullRequestPayload) []string {
 	filenames := make([]string, 2)
 	filenames[0] = "Test0"
 	filenames[1] = "Test1"
@@ -18,22 +19,27 @@ func parseHookPullRequest(pullRequest github.PullRequestPayload) []string {
 	return filenames
 }
 
-func parseHookPush(commits github.PushPayload) []string {
-	filenames := make([]string, 2)
-	filenames[0] = "Test0"
-	filenames[1] = "Test1"
-	//ggf.type switch: Pull request hook or push hook?
-	//modified/added/deleted auf yaml prüfen
-	//Dateinamen zurückgeben
+func parseHookPush(payload github.PushPayload) ([]string, []string) {
 	fmt.Println("Parse Hook Push method")
-	return filenames
+	modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
+	AddedFilenames := lookForYaml(payload.HeadCommit.Added)
+	return modifiedFilenames, AddedFilenames
 }
 
-func checkforChangedYAML() {
-
+func lookForYaml(filenames []string) []string {
+	var modifiedFilenames []string
+	for i := 0; i < len(filenames); i++ {
+		if strings.Contains(filenames[i], ".yaml") ||
+			strings.Contains(filenames[i], ".yml") {
+			modifiedFilenames = append(modifiedFilenames, filenames[i])
+		}
+	}
+	fmt.Println("Filenames", filenames)
+	fmt.Println("Modified Filenames:", modifiedFilenames)
+	return modifiedFilenames
 }
 
-func ParseHook(r *http.Request) {
+func ParseHook(r *http.Request) ([]string, []string) {
 	fmt.Println("parse hook method")
 	hook, _ := github.New(github.Options.Secret("testsecret"))
 
@@ -49,13 +55,14 @@ func ParseHook(r *http.Request) {
 	case github.PushPayload:
 		fmt.Println("push payload")
 		Commits := payload.(github.PushPayload)
-		//parseHookPush(Commits)
+		return parseHookPush(Commits)
+
 		fmt.Printf("%+v", Commits)
 
-	case github.PullRequestPayload:
+		/*case github.PullRequestPayload:
 		fmt.Println("pull request payload")
 		pullRequest := payload.(github.PullRequestPayload)
-		//parseHookPullRequest(pullRequest)
-		fmt.Printf("%+v", pullRequest)
+		//parseHookPullRequestToStruct(pullRequest)
+		fmt.Printf("%+v", pullRequest)*/
 	}
 }
