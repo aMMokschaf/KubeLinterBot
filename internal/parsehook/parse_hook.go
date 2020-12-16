@@ -37,7 +37,7 @@ func ParseHook(r *http.Request) {
 	fmt.Println("parse hook method")
 	hook, _ := github.New(github.Options.Secret("testsecret"))
 
-	payload, err := hook.Parse(r, github.ReleaseEvent, github.PullRequestEvent)
+	payload, err := hook.Parse(r, github.PushEvent, github.PullRequestEvent)
 	if err != nil {
 		if err == github.ErrEventNotFound {
 			// ok event wasn;t one of the ones asked to be parsed
