@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
-func GetCommit() {
+func GetCommit(addedFiles []string, modifiedFiles []string) {
 	fmt.Println("get commit method")
+
 }
