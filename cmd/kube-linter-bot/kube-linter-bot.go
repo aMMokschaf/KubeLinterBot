@@ -11,6 +11,7 @@ import (
 	"main/internal/postcomment"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -36,16 +37,16 @@ func optionParser() config {
 	}
 	var cfg config
 	yaml.Unmarshal([]byte(dat), &cfg)
-	fmt.Println(string(dat))
-	fmt.Println(cfg)
+	fmt.Println("Read configuration-file:\n", string(dat))
 	return cfg
 }
 
 //Sets up a logger, a webHookServer, prints the address and port, starts the server
 func main() {
-	optionParser()
+	var cfg = optionParser()
+	fmt.Println(cfg.Bot.Port)
 	logger := log.New(os.Stdout, "", 0)
-	webHookServ := setupServer(logger)
+	webHookServ := setupServer(logger, cfg.Bot.Port)
 	logger.Printf("KubeLinterBot is listening on http://localhost%s\n", webHookServ.Addr) //TODO: Address
 	webHookServ.ListenAndServe()
 
@@ -64,9 +65,9 @@ func main() {
 }
 
 //Setup method, needs an already set up logger and returns a http.Server-Pointer
-func setupServer(logger *log.Logger) *http.Server {
+func setupServer(logger *log.Logger, port int) *http.Server {
 	return &http.Server{
-		Addr:    ":4567", //TODO: hardcoded is bad
+		Addr:    ":" + strconv.Itoa(port),
 		Handler: newServer(logWith(logger)),
 
 		ReadTimeout:  5 * time.Second,
