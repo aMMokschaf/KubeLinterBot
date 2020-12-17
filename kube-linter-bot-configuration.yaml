@@ -1,0 +1,7 @@
+repository: 
+  reponame: "https://github.com/aMMokschaf/KubeLinterServer"
+  user: 
+    username: "marcel.singer@hs-bochum.de"
+    accessToken: "12345"
+bot:
+  port: 4567

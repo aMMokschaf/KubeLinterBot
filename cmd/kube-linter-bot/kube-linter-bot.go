@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"main/internal/callkubelinter"
@@ -11,16 +12,38 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 type config struct {
-	repository  string
-	accessToken string
-	port        int
+	Repository struct {
+		RepoName string `yaml:"reponame"`
+		User     struct {
+			Username    string `yaml:"username"`
+			AccessToken string `yaml:"accessToken"`
+		}
+	}
+	Bot struct {
+		Port int `yaml:"port"`
+	}
+}
+
+func optionParser() config {
+	dat, err := ioutil.ReadFile("kube-linter-bot-configuration.yaml")
+	if err != nil {
+		panic(err)
+	}
+	var cfg config
+	yaml.Unmarshal([]byte(dat), &cfg)
+	fmt.Println(string(dat))
+	fmt.Println(cfg)
+	return cfg
 }
 
 //Sets up a logger, a webHookServer, prints the address and port, starts the server
 func main() {
+	optionParser()
 	logger := log.New(os.Stdout, "", 0)
 	webHookServ := setupServer(logger)
 	logger.Printf("KubeLinterBot is listening on http://localhost%s\n", webHookServ.Addr) //TODO: Address
