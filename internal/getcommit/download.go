@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+/*
 func checkArgsAndDownload() {
 	if len(os.Args) != 3 {
 		fmt.Println("usage: download url filename")
@@ -20,14 +21,16 @@ func checkArgsAndDownload() {
 		panic(err)
 	}
 
-}
+}*/
 
 // DownloadFile will download a url and store it in local filepath.
 // It writes to the destination file as it downloads it, without
 // loading the entire file into memory.
-func DownloadFile(url string, filepath string) error {
+func DownloadFile(url string, filename string) error {
 	// Create the file
-	out, err := os.Create(filepath)
+	fmt.Println("Downloading file " + filename + "\n")
+	const folder = "/downloadedYaml/"
+	out, err := os.Create(filename)
 	if err != nil {
 		return err
 	}

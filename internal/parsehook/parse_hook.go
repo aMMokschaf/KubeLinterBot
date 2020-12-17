@@ -23,7 +23,7 @@ func parseHookPush(payload github.PushPayload) ([]string, []string) {
 	fmt.Println("Parse Hook Push method")
 	modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
 	AddedFilenames := lookForYaml(payload.HeadCommit.Added)
-	return modifiedFilenames, AddedFilenames
+	return AddedFilenames, modifiedFilenames
 }
 
 func lookForYaml(filenames []string) []string {

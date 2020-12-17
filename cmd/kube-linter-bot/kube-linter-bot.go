@@ -30,6 +30,7 @@ type config struct {
 	}
 }
 
+//optionParser reads a config-file and parses its contents to a struct.
 func optionParser() config {
 	dat, err := ioutil.ReadFile("kube-linter-bot-configuration.yaml")
 	if err != nil {
@@ -89,9 +90,7 @@ func newServer(options ...Option) *Server {
 	}
 
 	s.mux = http.NewServeMux()
-
 	s.mux.HandleFunc("/", s.index)
-
 	return s
 }
 
@@ -104,20 +103,6 @@ func logWith(logger *log.Logger) Option {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	/*if r.Method != "POST" {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		s.log("Only POST allowed.")
-		return
-	}
-
-	reqBody, err := ioutil.ReadAll(r.Body) //TODO ReadAll may be bad for large messages
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	s.log("Webhook received.")
-	makeJSON(s, reqBody)*/
-
 	var added []string
 	var modified []string
 
@@ -130,18 +115,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*
-//TODO: Parse JSON. Marshal? Decode?
-func makeJSON(s *Server, body []byte) {
-	s.log("\n%s", body)
-}*/
-
 func (s *Server) log(format string, v ...interface{}) {
 	s.logger.Printf(format+"\n", v...)
 }
 
 func (s *Server) index(w http.ResponseWriter, r *http.Request) {
 	//w.Write([]byte("KubeLinterBot is running here."))
-	//parsehook.ParseHook(r)
-
 }
