@@ -1,0 +1,7 @@
+repository: 
+  reponame: "https://raw.githubusercontent.com/aMMokschaf/yamls/main/"
+  user: 
+    username: "marcel.singer@hs-bochum.de"
+    accessToken: "empty"
+bot:
+  port: 4567

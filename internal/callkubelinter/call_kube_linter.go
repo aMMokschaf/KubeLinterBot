@@ -7,9 +7,12 @@ import (
 
 func Callkubelinter() {
 	//TODO take arguments
-	output, err := exec.Command("kubelinter/kube-linter", "lint", "pod.yaml").Output()
+	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/")
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("Kube-Linter has found problems with your files.\n", err)
+		fmt.Printf("%s\n", out)
+	} else {
+		fmt.Println("Kube-Linter has not found any problems with your files.")
 	}
-	fmt.Println(string(output))
 }
