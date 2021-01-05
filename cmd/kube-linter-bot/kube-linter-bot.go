@@ -85,7 +85,6 @@ func main() {
 			fmt.Println("written")
 		}
 		//implement check if token is actually valid
-		//Write token to file?
 	}
 	logger := log.New(os.Stdout, "", 0)
 	webHookServ := setupServer(logger, cfg.Bot.Port)
