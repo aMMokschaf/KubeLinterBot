@@ -1,39 +1,45 @@
 package postcomment
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
+
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 )
 
-func PostComment() {
-	fmt.Println("post comment method")
-	var input string = "testmsg"
-	fmt.Println(input)
-	testfunc()
+var personalAccessToken string
+
+type TokenSource struct {
+	AccessToken string
 }
 
-func testfunc() {
-	requestBody, err := json.Marshal(map[string]string{
-		"name": "Marcel",
-		"mail": "blabla@bla.de",
-	})
-	if err != nil {
-		log.Fatalln(err)
+//TODO: Doc and ask Malte wtf
+func (t *TokenSource) Token() (*oauth2.Token, error) {
+	token := &oauth2.Token{
+		AccessToken: t.AccessToken,
+	}
+	return token, nil
+}
+
+//TODO: Doc
+func PostComment(token string, username string, reponame string, commitSha string, result []byte) {
+	fmt.Println("Entering PostComment")
+
+	personalAccessToken = token
+	tokenSource := &TokenSource{
+		AccessToken: personalAccessToken,
 	}
 
-	resp, err := http.Post("https://api.github.com/repos/aMMokschaf/yamls/commits/6c052db5bb1ce419adb725ad4e726a3548149452/comments", "application/vnd.github.v3+json", bytes.NewBuffer(requestBody))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer resp.Body.Close()
+	oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
+	client := github.NewClient(oauthClient)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	var bdy string = string(result)
+	comment := github.RepositoryComment{Body: &bdy}
+	//fmt.Println(username, reponame, commitSha, comment)
+	_, r, err := client.Repositories.CreateComment(oauth2.NoContext, username, reponame, commitSha, &comment)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println("PostComment failed, error:", err)
+		//return
 	}
-	log.Println(string(body))
+	fmt.Println(r)
 }

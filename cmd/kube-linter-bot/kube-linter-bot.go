@@ -40,12 +40,12 @@ func optionParser() config {
 	if err != nil {
 		panic(err)
 	}
-	//var cfg config
 	yaml.Unmarshal([]byte(dat), &cfg)
-	fmt.Println("Read configuration-file:\n", string(dat))
+	//fmt.Println("Read configuration-file:\n", string(dat))
 	return cfg
 }
 
+//TODO Doc
 func writeOptionsToFile() bool {
 	status := false
 
@@ -55,12 +55,12 @@ func writeOptionsToFile() bool {
 		log.Fatalf("error: %v", err)
 	}
 
-	err = ioutil.WriteFile("./kube-linter-bot-configuration.yaml", d, 0666)
+	err = ioutil.WriteFile("./kube-linter-bot-configuration.yaml", d, 0666) //TODO: Check permissions
 	fmt.Printf("%s", d)
 	if err != nil {
 		panic(err)
 	} else {
-		fmt.Println("Setting status to true")
+		//fmt.Println("Setting status to true")
 		status = true
 	}
 
@@ -76,7 +76,6 @@ func main() {
 		go authentication.RunAuth(&wg)
 		wg.Wait()
 		cfg.Repository.User.AccessToken = authentication.GetToken()
-		fmt.Println("TOKEN MAIN:", cfg.Repository.User.AccessToken)
 		status := writeOptionsToFile()
 		if status == false {
 			fmt.Println("not written")
@@ -84,7 +83,7 @@ func main() {
 		if status == true {
 			fmt.Println("written")
 		}
-		//implement check if token is actually valid
+		//TODO: implement check if token is actually valid
 	}
 	logger := log.New(os.Stdout, "", 0)
 	webHookServ := setupServer(logger, cfg.Bot.Port)
@@ -109,6 +108,7 @@ type Server struct {
 	logger *log.Logger
 }
 
+//TODO Doc
 func newServer(options ...Option) *Server {
 	s := &Server{logger: log.New(ioutil.Discard, "", 0)}
 
@@ -123,28 +123,35 @@ func newServer(options ...Option) *Server {
 
 type Option func(*Server)
 
+//TODO Doc
 func logWith(logger *log.Logger) Option {
 	return func(s *Server) {
 		s.logger = logger
 	}
 }
 
+//TODO Doc
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var added []string
 	var modified []string
+	var token = authentication.GetToken()
 
 	added, modified = parsehook.ParseHook(r)
 
-	getcommit.GetCommit(cfg.Repository.RepoName, added, modified)
-	callkubelinter.Callkubelinter()
+	getcommit.GetCommit(cfg.Repository.RepoName, added, modified, token)
+	var klResult = callkubelinter.Callkubelinter()
+	//TODO: HandleResult ausprogrammieren
 	handleresult.HandleResult()
-	postcomment.PostComment()
+	//TODO: Remove hardcoded stuff
+	postcomment.PostComment("00132854b356fc04cd72baca27084cbc350d048f", "aMMokschaf", "yamls", "7f3d29c4d634f5e2eaaaf92ece08b42c457c4724", klResult)
 }
 
+//TODO Doc
 func (s *Server) log(format string, v ...interface{}) {
 	s.logger.Printf(format+"\n", v...)
 }
 
+//TODO: Do i need this?
 func (s *Server) index(w http.ResponseWriter, r *http.Request) {
 	//w.Write([]byte("KubeLinterBot is running here."))
 }

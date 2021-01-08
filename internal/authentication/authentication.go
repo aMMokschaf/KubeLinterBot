@@ -1,5 +1,6 @@
 package authentication
 
+//TODO: Doc the whole thing
 import (
 	"context"
 	"encoding/json"

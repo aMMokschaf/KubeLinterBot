@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func GetCommit(reponame string, addedFiles []string, modifiedFiles []string) {
+func GetCommit(reponame string, addedFiles []string, modifiedFiles []string, token string) {
 	fmt.Println("get commit method")
 	fmt.Println(addedFiles, "\n", modifiedFiles)
 
@@ -14,6 +14,6 @@ func GetCommit(reponame string, addedFiles []string, modifiedFiles []string) {
 	}
 	fmt.Println(string(output))*/
 	for _, filename := range modifiedFiles {
-		DownloadFile(reponame, filename)
+		DownloadFilePublic(reponame, filename)
 	}
 }

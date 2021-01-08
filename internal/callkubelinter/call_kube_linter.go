@@ -5,8 +5,9 @@ import (
 	"os/exec"
 )
 
-func Callkubelinter() {
-	//TODO take arguments
+//TODO: Doc
+func Callkubelinter() []byte {
+	//TODO: Change folder?
 	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -15,4 +16,5 @@ func Callkubelinter() {
 	} else {
 		fmt.Println("Kube-Linter has not found any problems with your files.")
 	}
+	return out
 }

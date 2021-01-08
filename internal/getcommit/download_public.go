@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func DownloadFile(url string, filename string) error {
+func DownloadFilePublic(url string, filename string) error {
 	//TODO implement subfolders
 	fmt.Println("Downloading file " + filename + "\n")
 	const folder = "./downloadedYaml/"
