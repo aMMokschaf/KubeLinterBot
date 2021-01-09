@@ -13,7 +13,8 @@ func GetCommit(reponame string, addedFiles []string, modifiedFiles []string, tok
 		fmt.Println(err.Error())
 	}
 	fmt.Println(string(output))*/
-	for _, filename := range modifiedFiles {
-		DownloadFilePublic(reponame, filename)
-	}
+	// for _, filename := range modifiedFiles {
+	// 	DownloadFilePublic(reponame, filename)
+	// }
+	DownloadCommit(token, "aMMokschaf", "yamls", "f8a065ff6efd41d3212dee71f825d8094a155795")
 }

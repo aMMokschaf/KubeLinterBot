@@ -134,11 +134,12 @@ func logWith(logger *log.Logger) Option {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var added []string
 	var modified []string
-	var token = authentication.GetToken()
+	//var token = authentication.GetToken()
 
 	added, modified = parsehook.ParseHook(r)
 
-	getcommit.GetCommit(cfg.Repository.RepoName, added, modified, token)
+	//TODO: remove hardcoded stuff
+	getcommit.GetCommit(cfg.Repository.RepoName, added, modified, "00132854b356fc04cd72baca27084cbc350d048f")
 	var klResult = callkubelinter.Callkubelinter()
 	//TODO: HandleResult ausprogrammieren
 	handleresult.HandleResult()
