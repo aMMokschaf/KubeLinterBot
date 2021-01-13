@@ -51,9 +51,10 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 		&options)
 	if err != nil {
 		fmt.Println("GetCommit failed, error:", err)
-		//return
+		return downloadStatus
 	}
 	fmt.Println(folder, file, r)
+	downloadStatus = true
 
 	//authenticate with github
 	//download whole commit
