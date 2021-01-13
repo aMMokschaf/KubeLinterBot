@@ -134,17 +134,19 @@ func logWith(logger *log.Logger) Option {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var added []string
 	var modified []string
-	//var token = authentication.GetToken()
+	var token string = authentication.ExtractTokenStringFromJSONToken(cfg.Repository.User.AccessToken)
+
+	var userName = cfg.Repository.User.Username
+	var repoName = cfg.Repository.RepoName
 
 	added, modified = parsehook.ParseHook(r)
 
-	//TODO: remove hardcoded stuff
-	getcommit.GetCommit(cfg.Repository.RepoName, added, modified, "00132854b356fc04cd72baca27084cbc350d048f")
+	getcommit.GetCommit(repoName, added, modified, token)
 	var klResult = callkubelinter.Callkubelinter()
 	//TODO: HandleResult ausprogrammieren
 	handleresult.HandleResult()
-	//TODO: Remove hardcoded stuff
-	postcomment.PostComment("00132854b356fc04cd72baca27084cbc350d048f", "aMMokschaf", "yamls", "7f3d29c4d634f5e2eaaaf92ece08b42c457c4724", klResult)
+	//TODO: Remove hardcoded commitSHA
+	postcomment.PostComment(token, userName, repoName, "7f3d29c4d634f5e2eaaaf92ece08b42c457c4724", klResult)
 }
 
 //TODO Doc

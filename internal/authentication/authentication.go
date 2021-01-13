@@ -81,7 +81,7 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Problem with serializing token to JSON:", err)
 	}
 	fmt.Printf("Logged in as GitHub user: %s\n", *user.Login)
-	fmt.Println("TOKEN:", jsonToken)
+	//fmt.Println("TOKEN:", jsonToken)
 	http.Redirect(w, r, "/shutdown", http.StatusTemporaryRedirect)
 }
 
@@ -112,6 +112,20 @@ func tokenToJSON(token *oauth2.Token) (string, error) {
 
 func GetToken() string {
 	return jsonToken
+}
+
+type jsonTokenStruct struct {
+	Access_token string
+	Token_type   string
+	Expiry       string
+}
+
+//This method extracts the access_token-String from the complete token.
+func ExtractTokenStringFromJSONToken(completeToken string) string {
+	var tokenStruct jsonTokenStruct
+	json.Unmarshal([]byte(completeToken), &tokenStruct)
+	var tokenString string = tokenStruct.Access_token
+	return tokenString
 }
 
 func tokenFromJSON(jsonStr string) (*oauth2.Token, error) {

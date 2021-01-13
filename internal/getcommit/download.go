@@ -2,9 +2,6 @@ package getcommit
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"os"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -37,12 +34,6 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 	oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
 	client := github.NewClient(oauthClient)
 
-	/*
-		var bdy string = string(result)
-		comment := github.RepositoryComment{Body: &bdy}
-	*/
-	//fmt.Println(username, reponame, commitSha, comment)
-
 	var options = github.RepositoryContentGetOptions{}
 	file, folder, r, err := client.Repositories.GetContents(oauth2.NoContext,
 		"aMMokschaf",
@@ -56,11 +47,10 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 	fmt.Println(folder, file, r)
 	downloadStatus = true
 
-	//authenticate with github
-	//download whole commit
 	return downloadStatus
 }
 
+/*
 func DownloadFile(url string, filename string) error {
 	//TODO implement subfolders
 	fmt.Println("Downloading file " + filename + "\n")
@@ -88,4 +78,4 @@ func DownloadFile(url string, filename string) error {
 	}
 
 	return nil
-}
+}*/
