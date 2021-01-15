@@ -7,7 +7,7 @@ KubeLinterBot calls KubeLinter with one ore more .yaml or .yml, interprets KubeL
 Change _repository.reponame_, _repository.username_ and _bot.port_ according to your wishes.
 Generate a safe secret and add it as _webhook.secret_. You will need this later while installing the webhook.
 Important: Don't change repository.user.accessToken manually here.
-2. Run **make build** in /KubeLinterBot
+2. Run **make build** in /KubeLinterBot/
 3. Run **./kube-linter-bot**
 4. Authorize with github in your browser on http://localhost:7000  
 You can remove authorization in your github-account-settings.
