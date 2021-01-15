@@ -154,7 +154,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			postcomment.PostComment(token, userName, repoName, commitSha, klResult)
 		}
 	} else {
-		fmt.Println("No need to lint.")
+		fmt.Println("No need to lint, as no .yml or .yaml were changed.")
 	}
 }
 
