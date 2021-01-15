@@ -17,7 +17,6 @@ and set these webhook-options:
 >1. **Payload URL**: Your kubelinterbot-server address
 >2. **Content type**: application/json
 >3. **Secret**: The secret you generated for the configuration-file earlier.
-
 >4. Select "Let me select individual events" and then choose "Pull Requests" and "Pushes".
 >5. Make sure "Active" is activated. 
 >6. Click "Add webhook". You're done!
