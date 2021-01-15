@@ -8,7 +8,7 @@ import (
 
 //HandleResult calls removeDownloadedFiles after linting. After this, it passes kubelinters exit-code back.
 func HandleResult(status int) int {
-	fmt.Println("Entering HandleResult")
+	//fmt.Println("Entering HandleResult")
 	err := removeDownloadedFiles("./downloadedYaml/")
 	if err != nil {
 		fmt.Println("Error while removing files.")
@@ -24,7 +24,7 @@ func HandleResult(status int) int {
 
 //removeDownloadedFiles removes all downloaded files in order to keep the storage-requirements low.
 func removeDownloadedFiles(dir string) error {
-	fmt.Println("Entering removeDownloadedFiles()")
+	//fmt.Println("Entering removeDownloadedFiles()")
 	d, err := os.Open(dir)
 	if err != nil {
 		return err

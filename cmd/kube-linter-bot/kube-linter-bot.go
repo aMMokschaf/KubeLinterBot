@@ -146,7 +146,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	added, modified, commitSha = parsehook.ParseHook(r, cfg.Webhook.Secret)
 
-	getcommit.GetCommit(repoName, added, modified, token)
+	getcommit.GetCommit(token, userName, repoName, commitSha, added, modified)
 
 	var klResult, klExitCode = callkubelinter.Callkubelinter()
 	var hRStatus = handleresult.HandleResult(klExitCode)
