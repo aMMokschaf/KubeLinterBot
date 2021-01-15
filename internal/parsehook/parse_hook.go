@@ -49,10 +49,10 @@ func lookForYaml(filenames []string) []string {
 //ParseHook checks the hook for github.PushPayload or github.PullRequestPayload
 //and passes the payloads to the appropriate methods. It ultimately returns
 //a list of modified files, a list of added files, and the commit-SHA.
-func ParseHook(r *http.Request) ([]string, []string, string) {
+func ParseHook(r *http.Request, secret string) ([]string, []string, string) {
 	//fmt.Println("parse hook method")
 	//TODO remove hardcoded stuff
-	hook, _ := github.New(github.Options.Secret("testsecret"))
+	hook, _ := github.New(github.Options.Secret(secret))
 
 	payload, err := hook.Parse(r, github.PushEvent, github.PullRequestEvent)
 	if err != nil {

@@ -30,6 +30,9 @@ type config struct {
 	Bot struct {
 		Port int `yaml:"port"`
 	}
+	Webhook struct {
+		Secret string `yaml:"secret"`
+	}
 }
 
 var cfg config
@@ -141,7 +144,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var userName = cfg.Repository.User.Username
 	var repoName = cfg.Repository.RepoName
 
-	added, modified, commitSha = parsehook.ParseHook(r)
+	added, modified, commitSha = parsehook.ParseHook(r, cfg.Webhook.Secret)
 
 	getcommit.GetCommit(repoName, added, modified, token)
 

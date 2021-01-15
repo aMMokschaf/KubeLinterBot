@@ -7,3 +7,5 @@ repository:
     accessToken: "empty" #kubelinterbot will save its access-token here, as soon as it is authenticated via oauth to your repository.
 bot:
   port: 4567 #The port you want kubelinterbots http-server to listen for webhooks.
+webhook:
+  secret: #Generate a secret for the webhook
