@@ -14,15 +14,14 @@ You can remove authorization in your github-account-settings.
 5. Install a webhook (will be automated in future versions) here:
 https://github.com/[your-username]/[your-repository]/settings/hooks  
 
->### Set these options:
->1. **Payload URL**: Your kubelinterbot-server address
->2. **Content type**: application/json
->3. **Secret**: The secret you generated for the configuration-file earlier.
+Set these webhook-options:
+1. **Payload URL**: Your kubelinterbot-server address
+2. **Content type**: application/json
+3. **Secret**: The secret you generated for the configuration-file earlier.
 
->4. Select "Let me select individual events" and then choose "Pull Requests" and "Pushes".
-
->5. Make sure "Active" is activated. 
->6. Click "Add webhook". You're done!
+4. Select "Let me select individual events" and then choose "Pull Requests" and "Pushes".
+5. Make sure "Active" is activated. 
+6. Click "Add webhook". You're done!
 
 ## How to use
 If there is a push- or pull-request-event in the watched repository, KubeLinterBot will automatically call KubeLinter and post the results. 
