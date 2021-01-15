@@ -9,16 +9,16 @@ import (
 )
 
 //TODO: This whole method
-func parseHookPullRequestToStruct(pullRequest github.PullRequestPayload) []string {
-	filenames := make([]string, 2)
-	filenames[0] = "Test0"
-	filenames[1] = "Test1"
-	//ggf.type switch: Pull request hook or push hook?
-	//modified/added/deleted auf yaml prüfen
-	//Dateinamen zurückgeben
-	fmt.Println("Parse Hook Pull Request method")
-	return filenames
-}
+//parseHookPullRequest gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
+//and the commitSha that are parsed from the payload.
+// func parseHookPullRequest(payload github.PullRequestPayload) ([]string, []string, string) {
+// 	fmt.Println("Parse Hook Pull Request method")
+// 	modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
+// 	addedFilenames := lookForYaml(payload.HeadCommit.Added)
+// 	commitSha := payload.HeadCommit.ID
+
+// 	return addedFilenames, modifiedFilenames, commitSha
+// }
 
 //parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
 //and the commitSha that are parsed from the payload.
@@ -75,7 +75,7 @@ func ParseHook(r *http.Request) ([]string, []string, string) {
 	case github.PullRequestPayload:
 		fmt.Println("pull request payload")
 		pullRequest := payload.(github.PullRequestPayload)
-		//added, modified = parseHookPullRequestToStruct(pullRequest)
+		added, modified, commitSha = parseHookPullRequest(pullRequest)
 		fmt.Printf("%+v", pullRequest)
 	}
 	return added, modified, commitSha
