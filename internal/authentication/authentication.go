@@ -85,11 +85,14 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/shutdown", http.StatusTemporaryRedirect)
 }
 
+//handleShutdown is the handler for /shutdown.
 func handleShutdown(w http.ResponseWriter, r *http.Request) {
 	waitGroup.Done()
 	s.Shutdown(context.Background())
 }
 
+//RunAuth is called if KubeLinterBot is not authorized. After authorization,
+//KubeLinterBots main-server starts.
 func RunAuth(wg *sync.WaitGroup) {
 	waitGroup = wg
 	m := http.NewServeMux()
@@ -102,6 +105,7 @@ func RunAuth(wg *sync.WaitGroup) {
 	fmt.Println(s.ListenAndServe())
 }
 
+//tokenToJSON converts a ouath2.Token to a JSON-String
 func tokenToJSON(token *oauth2.Token) (string, error) {
 	if d, err := json.Marshal(token); err != nil {
 		return "", err
@@ -110,6 +114,7 @@ func tokenToJSON(token *oauth2.Token) (string, error) {
 	}
 }
 
+//GetToken returns the access-token as JSON.
 func GetToken() string {
 	return jsonToken
 }
@@ -120,7 +125,7 @@ type jsonTokenStruct struct {
 	Expiry       string
 }
 
-//This method extracts the access_token-String from the complete token.
+//ExtractTokenStringFromJSONToken extracts the access_token-String from the complete token.
 func ExtractTokenStringFromJSONToken(completeToken string) string {
 	var tokenStruct jsonTokenStruct
 	json.Unmarshal([]byte(completeToken), &tokenStruct)
@@ -128,6 +133,7 @@ func ExtractTokenStringFromJSONToken(completeToken string) string {
 	return tokenString
 }
 
+//tokenFromJSON parses a JSON-string to a oauth2.Token
 func tokenFromJSON(jsonStr string) (*oauth2.Token, error) {
 	var token oauth2.Token
 	if err := json.Unmarshal([]byte(jsonStr), &token); err != nil {

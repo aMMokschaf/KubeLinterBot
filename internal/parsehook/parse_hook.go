@@ -8,7 +8,7 @@ import (
 	"gopkg.in/go-playground/webhooks.v5/github"
 )
 
-//TODO: This whole method
+//TODO: What is the structure of pullRequest-payloads?
 //parseHookPullRequest gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
 //and the commitSha that are parsed from the payload.
 // func parseHookPullRequest(payload github.PullRequestPayload) ([]string, []string, string) {

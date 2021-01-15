@@ -28,7 +28,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 func DownloadCommit(token string, username string, reponame string, commitSha string, addedFiles []string, modifiedFiles []string) bool {
 	var downloadStatus = false
 
-	fmt.Println("Entering DownloadCommit")
+	//fmt.Println("Entering DownloadCommit")
 
 	personalAccessToken = token
 	tokenSource := &TokenSource{
