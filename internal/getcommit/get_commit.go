@@ -5,9 +5,8 @@ import (
 )
 
 func GetCommit(token string, username string, reponame string, commitSha string, addedFiles []string, modifiedFiles []string) {
-	fmt.Println("get commit method")
-	fmt.Println(addedFiles, "\n", modifiedFiles)
+	fmt.Println("Getting commit", commitSha, "from repository", reponame)
+	fmt.Printf("Added Files:%v\nModified Files:%v\n", addedFiles, modifiedFiles)
 
-	//TODO remove hardcoded stuff
 	DownloadCommit(token, username, reponame, commitSha, addedFiles, modifiedFiles)
 }

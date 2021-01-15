@@ -11,7 +11,7 @@ func Callkubelinter() ([]byte, int) {
 	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Kube-Linter has found problems with your files.\n", err)
+		fmt.Println("Kube-Linter has found problems with your files:", err)
 		fmt.Printf("%s\n", out)
 		return out, 1
 	} else {

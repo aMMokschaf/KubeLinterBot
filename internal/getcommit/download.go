@@ -45,7 +45,7 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 		"",
 		&options)
 	if err != nil {
-		fmt.Println("GetCommit failed, error:", err)
+		fmt.Println("Downloading the commit failed:\n", err)
 		return downloadStatus
 	}
 	fmt.Println("\nfolder:", folder, "\nfile:", file, "\nresponse:", r)

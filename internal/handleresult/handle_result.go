@@ -10,6 +10,7 @@ import (
 func HandleResult(status int) int {
 	//fmt.Println("Entering HandleResult")
 	err := removeDownloadedFiles("./downloadedYaml/")
+	fmt.Println("Removing downloaded files after linting...")
 	if err != nil {
 		fmt.Println("Error while removing files.")
 	} else {
@@ -24,7 +25,6 @@ func HandleResult(status int) int {
 
 //removeDownloadedFiles removes all downloaded files in order to keep the storage-requirements low.
 func removeDownloadedFiles(dir string) error {
-	//fmt.Println("Entering removeDownloadedFiles()")
 	d, err := os.Open(dir)
 	if err != nil {
 		return err
