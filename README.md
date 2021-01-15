@@ -13,7 +13,6 @@ Important: Don't change repository.user.accessToken manually here.
 You can remove authorization in your github-account-settings.
 5. Install a webhook (will be automated in future versions) here:
 https://github.com/[your-username]/[your-repository]/settings/hooks
-
 Set these webhook-options:
 1. **Payload URL**: Your kubelinterbot-server address
 2. **Content type**: application/json
