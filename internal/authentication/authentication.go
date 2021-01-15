@@ -105,7 +105,7 @@ func RunAuth(wg *sync.WaitGroup) {
 	fmt.Println(s.ListenAndServe())
 }
 
-//tokenToJSON converts a ouath2.Token to a JSON-String
+//tokenToJSON converts a oauth2.Token to a JSON-String
 func tokenToJSON(token *oauth2.Token) (string, error) {
 	if d, err := json.Marshal(token); err != nil {
 		return "", err

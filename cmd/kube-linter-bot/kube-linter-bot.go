@@ -146,10 +146,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	getcommit.GetCommit(repoName, added, modified, token)
 
 	var klResult, klExitCode = callkubelinter.Callkubelinter()
-	//TODO: HandleResult ausprogrammieren
 	var hRStatus = handleresult.HandleResult(klExitCode)
 	if hRStatus == 1 {
-		//TODO: Remove hardcoded commitSHA
 		postcomment.PostComment(token, userName, repoName, commitSha, klResult)
 	}
 }

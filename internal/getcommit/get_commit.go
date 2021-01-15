@@ -16,5 +16,6 @@ func GetCommit(reponame string, addedFiles []string, modifiedFiles []string, tok
 	// for _, filename := range modifiedFiles {
 	// 	DownloadFilePublic(reponame, filename)
 	// }
+	//TODO remove hardcoded stuff
 	DownloadCommit(token, "aMMokschaf", "yamls", "f8a065ff6efd41d3212dee71f825d8094a155795", addedFiles, modifiedFiles)
 }
