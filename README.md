@@ -25,4 +25,4 @@ and set these webhook-options:
 ## How to use
 If there is a push- or pull-request-event in the watched repository, KubeLinterBot will automatically call KubeLinter and post the results. 
 
-There are deployment-files for Kubernetes and a docker-file included. You can find them in the _deployment_-folder.
+There are deployment-files for Kubernetes and a docker-file included. You can find the Kubernetes-files in the _deployment_-folder and the Dockerfile in the KubeLinterBot-folder.
