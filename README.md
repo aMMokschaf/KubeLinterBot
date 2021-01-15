@@ -1,6 +1,6 @@
 # KubeLinterBot
 
-KubeLinterBot calls KubeLinter with one ore more .yaml, interprets KubeLinter's output and posts a comment to the relevant commit via the github-API if there is a security-problem.
+KubeLinterBot calls KubeLinter with one ore more .yaml or .yml, interprets KubeLinter's output and posts a comment to the relevant commit via the github-API if there is a security-problem.
 
 ## How to install
 1. If there is no file named kube-linter-bot-configuration.yaml in the KubeLinterBot-folder, copy the sample-file from the samples-folder.
