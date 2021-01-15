@@ -12,6 +12,8 @@ import (
 
 var personalAccessToken string
 
+const mainFolder = "./downloadedYaml/"
+
 type TokenSource struct {
 	AccessToken string
 }
@@ -38,7 +40,7 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 	oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
 	client := github.NewClient(oauthClient)
 
-	var options = github.RepositoryContentGetOptions{}
+	/*var options = github.RepositoryContentGetOptions{}
 	file, folder, r, err := client.Repositories.GetContents(oauth2.NoContext,
 		username,
 		reponame,
@@ -48,29 +50,51 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 		fmt.Println("Downloading the commit failed:\n", err)
 		return downloadStatus
 	}
-	fmt.Println("\nfolder:", folder, "\nfile:", file, "\nresponse:", r)
-
-	//TODO folders cant be downloaded yet
-	for _, filename := range modifiedFiles {
-		for _, filename2 := range folder {
-			fmt.Println(filename)
-			//folder ist ein array
-			//jedes modifiedFile mit allen paths abgleichen?
-			//Dann ggf an DownloadFile übergeben
-			downloadFile2(filename2.GetDownloadURL(), filename2.GetName())
-		}
+	fmt.Println("\nfolder:", folder, "\nfile:", file, "\nresponse:", r)*/
+	folder, err := downloadFolder("", username, reponame, client, oauthClient)
+	if err != nil {
+		fmt.Println("Error while creating folder.", err)
+	} else {
+		fmt.Println(folder)
 	}
 
 	downloadStatus = true
-
 	return downloadStatus
 }
 
-func downloadFile2(url string, filename string) error {
-	//TODO implement subfolders
+func downloadFolder(path string, username string, reponame string, client *github.Client, oauthClient *http.Client) ([]*github.RepositoryContent, error) {
+	var options = github.RepositoryContentGetOptions{}
+	file, folder, r, err := client.Repositories.GetContents(oauth2.NoContext,
+		username,
+		reponame,
+		path,
+		&options)
+	if err != nil {
+		return folder, err
+	} else {
+		fmt.Println("\nfolder:", folder, "\nfile:", file, "\nresponse:", r)
+		//	return folder, nil
+	}
+	for _, file := range folder {
+		if string(file.GetType()) == "dir" {
+			err := os.MkdirAll(string(mainFolder+file.GetPath()), 0755)
+			if err != nil {
+				fmt.Println("Error while creating folder.", err)
+				//return downloadStatus
+			} else {
+				fmt.Println("Folder created", file.GetPath())
+			}
+			downloadFolder(file.GetPath(), username, reponame, client, oauthClient)
+		} else if string(file.GetType()) == "file" {
+			downloadFile(file.GetDownloadURL(), file.GetPath())
+		}
+	}
+	return folder, err
+}
+
+func downloadFile(url string, filepath string) error {
 	fmt.Println("Downloading file " + url + "\n")
-	const mainFolder = "./downloadedYaml/"
-	out, err := os.Create(mainFolder + filename)
+	out, err := os.Create(mainFolder + filepath)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -91,35 +115,5 @@ func downloadFile2(url string, filename string) error {
 		fmt.Println(err)
 		return err
 	}
-
-	return nil
-}
-
-func downloadFile(url string, filename string) error {
-	//TODO implement subfolders
-	fmt.Println("Downloading file " + filename + "\n")
-	const mainFolder = "./downloadedYaml/"
-	out, err := os.Create(mainFolder + filename)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	defer out.Close()
-
-	// Get the data
-	resp, err := http.Get(url + filename)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	defer resp.Body.Close()
-
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
 	return nil
 }
