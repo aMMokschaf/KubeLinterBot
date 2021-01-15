@@ -23,7 +23,6 @@ import (
 //parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
 //and the commitSha that are parsed from the payload.
 func parseHookPush(payload github.PushPayload) ([]string, []string, string) {
-	fmt.Println("Parse Hook Push method")
 	modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
 	addedFilenames := lookForYaml(payload.HeadCommit.Added)
 	commitSha := payload.HeadCommit.ID
