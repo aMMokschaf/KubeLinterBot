@@ -145,13 +145,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var repoName = cfg.Repository.RepoName
 
 	added, modified, commitSha = parsehook.ParseHook(r, cfg.Webhook.Secret)
+	if len(added) != 0 || len(modified) != 0 {
+		getcommit.GetCommit(token, userName, repoName, commitSha, added, modified)
 
-	getcommit.GetCommit(token, userName, repoName, commitSha, added, modified)
-
-	var klResult, klExitCode = callkubelinter.Callkubelinter()
-	var hRStatus = handleresult.HandleResult(klExitCode)
-	if hRStatus == 1 {
-		postcomment.PostComment(token, userName, repoName, commitSha, klResult)
+		var klResult, klExitCode = callkubelinter.Callkubelinter()
+		var hRStatus = handleresult.HandleResult(klExitCode)
+		if hRStatus == 1 {
+			postcomment.PostComment(token, userName, repoName, commitSha, klResult)
+		}
+	} else {
+		fmt.Println("No need to lint.")
 	}
 }
 
