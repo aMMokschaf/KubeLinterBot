@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-//TODO: Doc, ausprogrammieren
+//HandleResult calls removeDownloadedFiles after linting. After this, it passes kubelinters exit-code back.
 func HandleResult(status int) int {
 	fmt.Println("Entering HandleResult")
 	err := removeDownloadedFiles("./downloadedYaml/")
@@ -22,7 +22,7 @@ func HandleResult(status int) int {
 	}
 }
 
-//This method removes all downloaded files in order to keep the storage-requirements low.
+//removeDownloadedFiles removes all downloaded files in order to keep the storage-requirements low.
 func removeDownloadedFiles(dir string) error {
 	fmt.Println("Entering removeDownloadedFiles()")
 	d, err := os.Open(dir)

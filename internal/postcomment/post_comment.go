@@ -21,9 +21,9 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
-//TODO: Doc
+//PostComment TODO
 func PostComment(token string, username string, reponame string, commitSha string, result []byte) {
-	fmt.Println("Entering PostComment")
+	//fmt.Println("Entering PostComment")
 
 	personalAccessToken = token
 	tokenSource := &TokenSource{
@@ -38,7 +38,7 @@ func PostComment(token string, username string, reponame string, commitSha strin
 	//fmt.Println(username, reponame, commitSha, comment)
 	_, r, err := client.Repositories.CreateComment(oauth2.NoContext, username, reponame, commitSha, &comment)
 	if err != nil {
-		fmt.Println("PostComment failed, error:", err)
+		fmt.Println("Posting kubelinters comment failed, error:", err)
 		//return
 	}
 	fmt.Println(r)

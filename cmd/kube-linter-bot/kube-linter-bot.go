@@ -34,7 +34,9 @@ type config struct {
 
 var cfg config
 
-//optionParser reads a config-file and parses its contents to a struct.
+//optionParser reads a config-file named "kube-linter-bot-configuration.yaml", that has
+//to be located in the same folder as kube-linter-bot and parses its contents to a struct.
+//A sample file is located in /samples/
 func optionParser() config {
 	dat, err := ioutil.ReadFile("kube-linter-bot-configuration.yaml")
 	if err != nil {
@@ -45,29 +47,28 @@ func optionParser() config {
 	return cfg
 }
 
-//TODO Doc
+//writeOptionsToFile saves changes to the configuration to kube-linter-bot-configuration.yaml.
 func writeOptionsToFile() bool {
 	status := false
 
-	fmt.Println(cfg)
+	//fmt.Println(cfg)
 	d, err := yaml.Marshal(cfg)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
 	err = ioutil.WriteFile("./kube-linter-bot-configuration.yaml", d, 0666) //TODO: Check permissions
-	fmt.Printf("%s", d)
+	//fmt.Printf("%s", d)
 	if err != nil {
 		panic(err)
 	} else {
 		//fmt.Println("Setting status to true")
 		status = true
 	}
-
 	return status
 }
 
-//Sets up a logger, a webHookServer, prints the address and port, starts the server
+//main sets up a logger, a webHookServer, prints the address and port, starts the server
 func main() {
 	cfg = optionParser()
 	var wg sync.WaitGroup
@@ -91,7 +92,7 @@ func main() {
 	webHookServ.ListenAndServe()
 }
 
-//Setup method, needs an already set up logger and returns a http.Server-Pointer
+//setupServer sets up the http-server.
 func setupServer(logger *log.Logger, port int) *http.Server {
 	return &http.Server{
 		Addr:    ":" + strconv.Itoa(port),
@@ -108,7 +109,7 @@ type Server struct {
 	logger *log.Logger
 }
 
-//TODO Doc
+//newServer creates the http-server.
 func newServer(options ...Option) *Server {
 	s := &Server{logger: log.New(ioutil.Discard, "", 0)}
 
@@ -123,23 +124,24 @@ func newServer(options ...Option) *Server {
 
 type Option func(*Server)
 
-//TODO Doc
+//logWith creates the logger needed for the http-server.
 func logWith(logger *log.Logger) Option {
 	return func(s *Server) {
 		s.logger = logger
 	}
 }
 
-//TODO Doc
+//ServeHTTP waits for a github-webhook and then blabla TODO
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var added []string
 	var modified []string
+	var commitSha string
 	var token string = authentication.ExtractTokenStringFromJSONToken(cfg.Repository.User.AccessToken)
 
 	var userName = cfg.Repository.User.Username
 	var repoName = cfg.Repository.RepoName
 
-	added, modified = parsehook.ParseHook(r)
+	added, modified, commitSha = parsehook.ParseHook(r)
 
 	getcommit.GetCommit(repoName, added, modified, token)
 
@@ -148,11 +150,11 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var hRStatus = handleresult.HandleResult(klExitCode)
 	if hRStatus == 1 {
 		//TODO: Remove hardcoded commitSHA
-		postcomment.PostComment(token, userName, repoName, "7f3d29c4d634f5e2eaaaf92ece08b42c457c4724", klResult)
+		postcomment.PostComment(token, userName, repoName, commitSha, klResult)
 	}
 }
 
-//TODO Doc
+//log logs messages
 func (s *Server) log(format string, v ...interface{}) {
 	s.logger.Printf(format+"\n", v...)
 }

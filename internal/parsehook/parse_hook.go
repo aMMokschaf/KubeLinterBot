@@ -8,6 +8,7 @@ import (
 	"gopkg.in/go-playground/webhooks.v5/github"
 )
 
+//TODO: This whole method
 func parseHookPullRequestToStruct(pullRequest github.PullRequestPayload) []string {
 	filenames := make([]string, 2)
 	filenames[0] = "Test0"
@@ -19,13 +20,19 @@ func parseHookPullRequestToStruct(pullRequest github.PullRequestPayload) []strin
 	return filenames
 }
 
-func parseHookPush(payload github.PushPayload) ([]string, []string) {
+//parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
+//and the commitSha that are parsed from the payload.
+func parseHookPush(payload github.PushPayload) ([]string, []string, string) {
 	fmt.Println("Parse Hook Push method")
 	modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
-	AddedFilenames := lookForYaml(payload.HeadCommit.Added)
-	return AddedFilenames, modifiedFilenames
+	addedFilenames := lookForYaml(payload.HeadCommit.Added)
+	commitSha := payload.HeadCommit.ID
+
+	return addedFilenames, modifiedFilenames, commitSha
 }
 
+//TODO: better variables
+//lookForYaml looks for .yaml or .yml-files, adds them to a string-array and returns it.
 func lookForYaml(filenames []string) []string {
 	var modifiedFilenames []string
 	for i := 0; i < len(filenames); i++ {
@@ -34,12 +41,15 @@ func lookForYaml(filenames []string) []string {
 			modifiedFilenames = append(modifiedFilenames, filenames[i])
 		}
 	}
-	fmt.Println("Filenames", filenames)
-	fmt.Println("Modified Filenames:", modifiedFilenames)
+	//fmt.Println("Filenames", filenames)
+	//fmt.Println("Modified Filenames:", modifiedFilenames)
 	return modifiedFilenames
 }
 
-func ParseHook(r *http.Request) ([]string, []string) {
+//ParseHook checks the hook for github.PushPayload or github.PullRequestPayload
+//and passes the payloads to the appropriate methods. It ultimately returns
+//a list of modified files, a list of added files, and the commit-SHA.
+func ParseHook(r *http.Request) ([]string, []string, string) {
 	fmt.Println("parse hook method")
 	hook, _ := github.New(github.Options.Secret("testsecret"))
 
@@ -52,13 +62,14 @@ func ParseHook(r *http.Request) ([]string, []string) {
 	}
 	var added []string
 	var modified []string
+	var commitSha string
 
 	switch payload.(type) {
 
 	case github.PushPayload:
 		fmt.Println("push payload")
 		Commits := payload.(github.PushPayload)
-		added, modified = parseHookPush(Commits)
+		added, modified, commitSha = parseHookPush(Commits)
 		fmt.Printf("%+v", Commits)
 
 	case github.PullRequestPayload:
@@ -67,5 +78,5 @@ func ParseHook(r *http.Request) ([]string, []string) {
 		//added, modified = parseHookPullRequestToStruct(pullRequest)
 		fmt.Printf("%+v", pullRequest)
 	}
-	return added, modified
+	return added, modified, commitSha
 }

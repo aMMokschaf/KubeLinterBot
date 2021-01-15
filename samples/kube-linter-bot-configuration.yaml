@@ -1,0 +1,9 @@
+#Copy this file to the KubeLinterBot-Folder and specify reponame, username and port.
+
+repository:
+  reponame: "Reponame" #The name of the repository, you want kubelinterbot to watch
+  user:
+    username: "Username" #kubelinterbots github-username. It is recommended to use an extra account for kubelinterbot, but you may use your own.
+    accessToken: "empty" #kubelinterbot will save its access-token here, as soon as it is authenticated via oauth to your repository.
+bot:
+  port: 4567 #The port you want kubelinterbots http-server to listen for webhooks.

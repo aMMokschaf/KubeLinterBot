@@ -24,6 +24,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
+//DownloadCommit authenticates with oauth and TODO
 func DownloadCommit(token string, username string, reponame string, commitSha string, addedFiles []string, modifiedFiles []string) bool {
 	var downloadStatus = false
 
@@ -39,8 +40,8 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 
 	var options = github.RepositoryContentGetOptions{}
 	file, folder, r, err := client.Repositories.GetContents(oauth2.NoContext,
-		"aMMokschaf",
-		"yamls",
+		username,
+		reponame,
 		"",
 		&options)
 	if err != nil {
@@ -49,6 +50,7 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 	}
 	fmt.Println("\nfolder:", folder, "\nfile:", file, "\nresponse:", r)
 
+	//TODO folders cant be downloaded yet
 	for _, filename := range modifiedFiles {
 		for _, filename2 := range folder {
 			fmt.Println(filename)

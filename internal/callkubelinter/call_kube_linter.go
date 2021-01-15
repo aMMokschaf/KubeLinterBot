@@ -5,7 +5,7 @@ import (
 	"os/exec"
 )
 
-//Calls the kube-linter binary in kubelinter/-folder.
+//Callkubelinter calls the kube-linter binary in kubelinter/-folder.
 func Callkubelinter() ([]byte, int) {
 	//TODO: Change folder?
 	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/")
