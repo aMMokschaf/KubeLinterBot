@@ -75,7 +75,7 @@ func ParseHook(r *http.Request) ([]string, []string, string) {
 	case github.PullRequestPayload:
 		fmt.Println("pull request payload")
 		pullRequest := payload.(github.PullRequestPayload)
-		added, modified, commitSha = parseHookPullRequest(pullRequest)
+		//added, modified, commitSha = parseHookPullRequest(pullRequest)
 		fmt.Printf("%+v", pullRequest)
 	}
 	return added, modified, commitSha
