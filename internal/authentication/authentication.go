@@ -1,6 +1,7 @@
+//authentication is responsible for registering KubeLinterBot to a github-Repository.
+//It also handles functions related to the oauth-token like serializing it or reading it again.
 package authentication
 
-//TODO: Doc the whole thing
 import (
 	"context"
 	"encoding/json"
