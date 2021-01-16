@@ -54,7 +54,7 @@ func DownloadCommit(token string, username string, reponame string, commitSha st
 //downloadFolder downloads all files in a folder, creating subfolders as necessary.
 func downloadFolder(path string, username string, reponame string, client *github.Client, oauthClient *http.Client) ([]*github.RepositoryContent, error) {
 	var options = github.RepositoryContentGetOptions{}
-	file, folder, r, err := client.Repositories.GetContents(oauth2.NoContext,
+	_, folder, _, err := client.Repositories.GetContents(oauth2.NoContext,
 		username,
 		reponame,
 		path,
@@ -62,24 +62,22 @@ func downloadFolder(path string, username string, reponame string, client *githu
 	if err != nil {
 		return folder, err
 	} else {
-		fmt.Println("\nfolder:", folder, "\nfile:", file, "\nresponse:", r)
-		//	return folder, nil
-	}
-	for _, file := range folder {
-		if string(file.GetType()) == "dir" {
-			err := os.MkdirAll(string(mainFolder+file.GetPath()), 0755)
-			if err != nil {
-				fmt.Println("Error while creating folder.", err)
-				//return downloadStatus
-			} else {
-				fmt.Println("Folder created", file.GetPath())
+		for _, file := range folder {
+			if string(file.GetType()) == "dir" {
+				err := os.MkdirAll(string(mainFolder+file.GetPath()), 0755)
+				if err != nil {
+					fmt.Println("Error while creating folder.", err)
+					//return downloadStatus
+				} else {
+					fmt.Println("Folder created", file.GetPath())
+				}
+				downloadFolder(file.GetPath(), username, reponame, client, oauthClient)
+			} else if string(file.GetType()) == "file" {
+				downloadFile(file.GetDownloadURL(), file.GetPath())
 			}
-			downloadFolder(file.GetPath(), username, reponame, client, oauthClient)
-		} else if string(file.GetType()) == "file" {
-			downloadFile(file.GetDownloadURL(), file.GetPath())
 		}
+		return folder, err
 	}
-	return folder, err
 }
 
 //downloadFile downloads a single file.

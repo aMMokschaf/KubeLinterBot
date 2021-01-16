@@ -1,3 +1,4 @@
+//main package reads config files, and contains the hook-receiving server.
 package main
 
 import (
@@ -46,7 +47,6 @@ func optionParser() config {
 		panic(err)
 	}
 	yaml.Unmarshal([]byte(dat), &cfg)
-	//fmt.Println("Read configuration-file:\n", string(dat))
 	return cfg
 }
 
@@ -54,18 +54,15 @@ func optionParser() config {
 func writeOptionsToFile() bool {
 	status := false
 
-	//fmt.Println(cfg)
 	d, err := yaml.Marshal(cfg)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
 	err = ioutil.WriteFile("./kube-linter-bot-configuration.yaml", d, 0666) //TODO: Check permissions
-	//fmt.Printf("%s", d)
 	if err != nil {
 		panic(err)
 	} else {
-		//fmt.Println("Setting status to true")
 		status = true
 	}
 	return status
