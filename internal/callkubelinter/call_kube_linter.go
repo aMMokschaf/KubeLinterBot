@@ -1,3 +1,4 @@
+//callkubelinter executes the KubeLinter-binary.
 package callkubelinter
 
 import (

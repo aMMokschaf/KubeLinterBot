@@ -1,3 +1,4 @@
+//parsehook parses a github-webhook. Push-Events and Pull-Request-Events are handled.
 package parsehook
 
 import (
@@ -13,11 +14,15 @@ import (
 //and the commitSha that are parsed from the payload.
 // func parseHookPullRequest(payload github.PullRequestPayload) ([]string, []string, string) {
 // 	fmt.Println("Parse Hook Pull Request method")
-// 	modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
-// 	addedFilenames := lookForYaml(payload.HeadCommit.Added)
-// 	commitSha := payload.HeadCommit.ID
-
-// 	return addedFilenames, modifiedFilenames, commitSha
+// 	if payload.Action == "created" {
+// 		modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
+// 		addedFilenames := lookForYaml(payload.HeadCommit.Added)
+// 		commitSha := payload.PullRequest.ID
+// 		return addedFilenames, modifiedFilenames, commitSha
+// 	} else {
+// 		fmt.Println("Not a newly created pull-request. Aborting.")
+// 		return nil, nil, ""
+// 	}
 // }
 
 //parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
@@ -30,19 +35,18 @@ func parseHookPush(payload github.PushPayload) ([]string, []string, string) {
 	return addedFilenames, modifiedFilenames, commitSha
 }
 
-//TODO: better variables
 //lookForYaml looks for .yaml or .yml-files, adds them to a string-array and returns it.
-func lookForYaml(filenames []string) []string {
-	var modifiedFilenames []string
-	for i := 0; i < len(filenames); i++ {
-		if strings.Contains(filenames[i], ".yaml") ||
-			strings.Contains(filenames[i], ".yml") {
-			modifiedFilenames = append(modifiedFilenames, filenames[i])
+func lookForYaml(filesInCommit []string) []string {
+	var yamlFilenames []string
+	for i := 0; i < len(filesInCommit); i++ {
+		if strings.Contains(filesInCommit[i], ".yaml") ||
+			strings.Contains(filesInCommit[i], ".yml") {
+			yamlFilenames = append(yamlFilenames, filesInCommit[i])
 		}
 	}
-	//fmt.Println("Filenames", filenames)
-	//fmt.Println("Modified Filenames:", modifiedFilenames)
-	return modifiedFilenames
+	//fmt.Println("Filenames", filesInCommit)
+	//fmt.Println("Modified Filenames:", yamlFilenames)
+	return yamlFilenames
 }
 
 //ParseHook checks the hook for github.PushPayload or github.PullRequestPayload
@@ -54,8 +58,8 @@ func ParseHook(r *http.Request, secret string) ([]string, []string, string) {
 	payload, err := hook.Parse(r, github.PushEvent, github.PullRequestEvent)
 	if err != nil {
 		if err == github.ErrEventNotFound {
-			// ok event wasn;t one of the ones asked to be parsed
-			fmt.Println(err)
+			//This happens if the webhook sends an event that is not push or pull-request.
+			fmt.Println("This event is neither push nor pull-request.\n", err)
 		}
 	}
 	var added []string
@@ -70,6 +74,7 @@ func ParseHook(r *http.Request, secret string) ([]string, []string, string) {
 		added, modified, commitSha = parseHookPush(Commits)
 		fmt.Printf("%+v\n", Commits)
 
+		//may not be needed after all, check with Malte
 	case github.PullRequestPayload:
 		fmt.Println("Receiving Pull-Request-Payload")
 		pullRequest := payload.(github.PullRequestPayload)
