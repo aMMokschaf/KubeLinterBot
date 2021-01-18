@@ -9,16 +9,21 @@ import (
 	"gopkg.in/go-playground/webhooks.v5/github"
 )
 
-//TODO: What is the structure of pullRequest-payloads?
 //parseHookPullRequest gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
 //and the commitSha that are parsed from the payload.
 // func parseHookPullRequest(payload github.PullRequestPayload) ([]string, []string, string) {
 // 	fmt.Println("Parse Hook Pull Request method")
-// 	if payload.Action == "created" {
-// 		modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
-// 		addedFilenames := lookForYaml(payload.HeadCommit.Added)
-// 		commitSha := payload.PullRequest.ID
-// 		return addedFilenames, modifiedFilenames, commitSha
+// 	if payload.Action == "created" || payload.Action == "updated" { //updated correct?
+// 		mergeCommitSha := payload.PullRequest.MergeCommitSha
+// 		fmt.Println("MergeCommitSHA:", mergeCommitSha)
+// 		//authenticate
+// 		//getContents (of commit)
+// 		//lookforyaml
+
+// 		//modifiedFilenames := lookForYaml(payload.PullRequest)
+// 		//addedFilenames := lookForYaml(payload.HeadCommit.Added)
+
+// 		return addedFilenames, modifiedFilenames, *mergeCommitSha
 // 	} else {
 // 		fmt.Println("Not a newly created pull-request. Aborting.")
 // 		return nil, nil, ""
@@ -74,7 +79,6 @@ func ParseHook(r *http.Request, secret string) ([]string, []string, string) {
 		added, modified, commitSha = parseHookPush(Commits)
 		fmt.Printf("%+v\n", Commits)
 
-		//may not be needed after all, check with Malte
 	case github.PullRequestPayload:
 		fmt.Println("Receiving Pull-Request-Payload")
 		pullRequest := payload.(github.PullRequestPayload)

@@ -1,9 +1,10 @@
-//getcommit is used to download all folders with .yaml and .yml-files.
+//Package getcommit is used to download all folders with .yaml and .yml-files.
 package getcommit
 
 import (
 	"fmt"
 	"io"
+	"main/internal/authentication"
 	"net/http"
 	"os"
 
@@ -11,36 +12,39 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var personalAccessToken string
+// var personalAccessToken string
 
 const mainFolder = "./downloadedYaml/"
 
-type TokenSource struct {
-	AccessToken string
-}
+// type TokenSource struct {
+// 	AccessToken string
+// }
 
-//Token creates the oauth2.Token for oauth.
-func (t *TokenSource) Token() (*oauth2.Token, error) {
-	token := &oauth2.Token{
-		AccessToken: t.AccessToken,
-	}
-	return token, nil
-}
+// //Token creates the oauth2.Token for oauth.
+// func (t *TokenSource) Token() (*oauth2.Token, error) {
+// 	token := &oauth2.Token{
+// 		AccessToken: t.AccessToken,
+// 	}
+// 	return token, nil
+// }
 
 //DownloadCommit authenticates with oauth and downloads all folders with .yaml or .yml-files.
 //These are then passed to the KubeLinter-binary.
-func DownloadCommit(token string, username string, reponame string, commitSha string, addedFiles []string, modifiedFiles []string) bool {
+func DownloadCommit(username string, reponame string, commitSha string, addedFiles []string, modifiedFiles []string) bool {
 	var downloadStatus = false
 
-	personalAccessToken = token
-	tokenSource := &TokenSource{
-		AccessToken: personalAccessToken,
-	}
+	// personalAccessToken = token
+	// tokenSource := &TokenSource{
+	// 	AccessToken: personalAccessToken,
+	// }
 
-	oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
-	client := github.NewClient(oauthClient)
+	// oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
+	// client := github.NewClient(oauthClient)
 
-	folder, err := downloadFolder("", username, reponame, client, oauthClient)
+	githubClient := authentication.GetGithubClient()
+	oAuthClient := authentication.GetOAuthClient()
+
+	folder, err := downloadFolder("", username, reponame, githubClient, oAuthClient)
 	if err != nil {
 		fmt.Println("Error while creating folder.", err)
 	} else {
