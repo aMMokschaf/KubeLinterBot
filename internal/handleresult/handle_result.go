@@ -1,4 +1,4 @@
-//handleresult removes the files after KubeLinter is done linting. It passes a status back to main
+//Package handleresult removes the files after KubeLinter is done linting. It passes a status back to main
 //to decide if a comment will be posted or not.
 package handleresult
 
@@ -10,7 +10,7 @@ import (
 
 //HandleResult calls removeDownloadedFiles after linting. After this, it passes kubelinters exit-code back.
 func HandleResult(status error) int {
-	err := removeDownloadedFiles("./downloadedYaml/")
+	err := RemoveDownloadedFiles("./downloadedYaml/")
 	fmt.Println("Removing downloaded files after linting...")
 	if err != nil {
 		fmt.Println("Error while removing files:\n", err)
@@ -24,8 +24,8 @@ func HandleResult(status error) int {
 	}
 }
 
-//removeDownloadedFiles removes all downloaded files in order to keep the storage-requirements low.
-func removeDownloadedFiles(dir string) error {
+//RemoveDownloadedFiles removes all downloaded files in order to keep the storage-requirements low.
+func RemoveDownloadedFiles(dir string) error {
 	d, err := os.Open(dir)
 	if err != nil {
 		return err
