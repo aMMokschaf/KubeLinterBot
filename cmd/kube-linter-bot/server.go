@@ -28,6 +28,7 @@ func setupServer(logger *log.Logger, port int) *http.Server {
 	}
 }
 
+//Server object.
 type Server struct {
 	mux    *http.ServeMux
 	logger *log.Logger
@@ -46,6 +47,7 @@ func newServer(options ...Option) *Server {
 	return s
 }
 
+//Option TODO
 type Option func(*Server)
 
 //logWith creates the logger needed for the http-server.
