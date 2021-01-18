@@ -21,10 +21,10 @@ func main() {
 		cfg.Repository.User.AccessToken = authentication.GetFullToken()
 		status := writeOptionsToFile()
 		if status == false {
-			fmt.Println("not written")
+			fmt.Println("Could not update configuration.")
 		}
 		if status == true {
-			fmt.Println("written")
+			fmt.Println("Configuration updated.")
 		}
 	}
 	logger := log.New(os.Stdout, "", 0)
