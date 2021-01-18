@@ -20,7 +20,7 @@ func PostComment(username string, reponame string, commitSha string, result []by
 		fmt.Println("Posting Kubelinter's comment failed, error:", err)
 		return err
 	} else {
-		fmt.Println("Comment posted successfully.\nKubeLinterBot is listening for Webhooks.")
+		fmt.Println("Comment posted successfully.\nKubeLinterBot is listening for Webhooks...")
 		return nil
 	}
 }
