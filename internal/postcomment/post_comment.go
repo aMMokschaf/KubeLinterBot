@@ -24,3 +24,20 @@ func PostComment(username string, reponame string, commitSha string, result []by
 		return nil
 	}
 }
+
+func PostPullRequestReviewWithComment(username string, reponame string, commitSha string, result []byte) error {
+	// githubClient := authentication.GetGithubClient()
+
+	// var bdy string = string(result)
+	// // comment := github.RepositoryComment{Body: &bdy}
+	// // _, _, err := githubClient.Repositories.CreateComment(oauth2.NoContext, username, reponame, commitSha, &comment)
+	// comment = github.DraftReviewComment("", )
+	// if err != nil {
+	// 	fmt.Println("Posting Kubelinter's comment failed, error:", err)
+	// 	return err
+	// } else {
+	// 	fmt.Println("Comment posted successfully.\nKubeLinterBot is listening for Webhooks...")
+	// 	return nil
+	// }
+	return nil
+}

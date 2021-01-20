@@ -69,7 +69,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var repoName = cfg.Repository.RepoName
 
 	added, modified, commitSha = parsehook.ParseHook(r, cfg.Webhook.Secret)
-	if len(added) != 0 || len(modified) != 0 {
+	if (len(added) != 0 || len(modified) != 0) || (added == nil && modified == nil) {
 		getcommit.GetCommit(token, userName, repoName, commitSha, added, modified)
 
 		var klResult, klExitCode = callkubelinter.Callkubelinter()

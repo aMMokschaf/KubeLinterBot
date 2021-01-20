@@ -33,23 +33,15 @@ const mainFolder = "./downloadedYaml/"
 func DownloadCommit(username string, reponame string, commitSha string, addedFiles []string, modifiedFiles []string) bool {
 	var downloadStatus = false
 
-	// personalAccessToken = token
-	// tokenSource := &TokenSource{
-	// 	AccessToken: personalAccessToken,
-	// }
-
-	// oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
-	// client := github.NewClient(oauthClient)
-
 	githubClient := authentication.GetGithubClient()
 	oAuthClient := authentication.GetOAuthClient()
 
-	folder, err := downloadFolder("", username, reponame, githubClient, oAuthClient)
+	_, err := downloadFolder("", username, reponame, githubClient, oAuthClient) //TODO path not hardcoded
 	if err != nil {
 		fmt.Println("Error while creating folder.", err)
-	} else {
-		fmt.Println(folder)
-	}
+	} // } else {
+	// 	fmt.Println(folder)
+	// }
 
 	downloadStatus = true
 	return downloadStatus
@@ -61,7 +53,7 @@ func downloadFolder(path string, username string, reponame string, client *githu
 	_, folder, _, err := client.Repositories.GetContents(oauth2.NoContext,
 		username,
 		reponame,
-		path,
+		path, //TODO path not hardcoded
 		&options)
 	if err != nil {
 		return folder, err
@@ -73,7 +65,7 @@ func downloadFolder(path string, username string, reponame string, client *githu
 					fmt.Println("Error while creating folder.", err)
 					//return downloadStatus
 				} else {
-					fmt.Println("Folder created", file.GetPath())
+					fmt.Println("Folder created:", file.GetPath())
 				}
 				downloadFolder(file.GetPath(), username, reponame, client, oauthClient)
 			} else if string(file.GetType()) == "file" {
@@ -86,7 +78,7 @@ func downloadFolder(path string, username string, reponame string, client *githu
 
 //downloadFile downloads a single file.
 func downloadFile(url string, filepath string) error {
-	fmt.Println("Downloading file " + url + "\n")
+	fmt.Println("Downloading file: " + url + "\n")
 	out, err := os.Create(mainFolder + filepath)
 	if err != nil {
 		fmt.Println(err)
