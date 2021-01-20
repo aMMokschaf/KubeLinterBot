@@ -1,9 +1,0 @@
-repository:
-  reponame: yamls
-  user:
-    username: aMMokschaf
-    accessToken: '{"access_token":"a2a7e2caa5847c2b2932cb678384c80a3fe529f2","token_type":"bearer","expiry":"0001-01-01T00:00:00Z"}'
-bot:
-  port: 4567
-webhook:
-  secret: testsecret
