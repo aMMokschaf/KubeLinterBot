@@ -2,92 +2,65 @@
 package parsehook
 
 import (
+	"context"
 	"fmt"
 	"main/internal/authentication"
 	"net/http"
 	"strings"
 
 	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 	githubWebhook "gopkg.in/go-playground/webhooks.v5/github"
 )
-
-//diff datei laden, parsen: .yaml oder .yml? wenn geändert: branch name? letzter commit?
-
-// parseHookPullRequest gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
-// and the commitSha that are parsed from the payload.
-// func parseHookPullRequest(payload github.PullRequestPayload) ([]string, []string, string) {
-// 	fmt.Println("Parse Hook Pull Request method")
-// 	if payload.Action == "created" || payload.Action == "updated" { //updated correct?
-// 		mergeCommitSha := payload.PullRequest.MergeCommitSha
-// 		fmt.Println("MergeCommitSHA:", mergeCommitSha)
-
-// 		//authenticate
-// 		// githubClient := authentication.GetGithubClient()
-// 		// githubClient.Repositories.GetContents(oauth2.NoContext, "aMMokschaf", "yamls", "")
-
-// 		// var options = github.RepositoryContentGetOptions{}
-// 		// _, folder, _, err := githubClient.Repositories.GetContents(oauth2.NoContext,
-// 		// 	"aMMokschaf",
-// 		// 	"yamls",
-// 		// 	"",
-// 		// 	&options)
-// 		// if err != nil {
-// 		// 	fmt.Println("Blablabla")
-// 		// }
-
-// 		//getContents (of commit)
-// 		//githubClient.Repositories.getContents()
-// 		//lookforyaml
-
-// 		//modifiedFilenames := lookForYaml(payload.PullRequest)
-// 		//addedFilenames := lookForYaml(payload.HeadCommit.Added)
-
-// 		//return addedFilenames, modifiedFilenames, *mergeCommitSha
-// 		return nil, nil, *mergeCommitSha
-// 	} else {
-// 		fmt.Println("Not a newly created pull-request. Aborting.")
-// 		return nil, nil, ""
-// 	}
-// }
 
 //parseHookPullRequest gets a githubWebhook.PullRequestPayload and checks for .yml and .yaml-files
 //return should be changed
 func parseHookPullRequest(payload githubWebhook.PullRequestPayload) ([]string, []string, string) {
 	fmt.Println("Parse Hook Pull Request method")
+	// fmt.Println(payload)
+	// fmt.Println(payload.PullRequest.Number)
+	// fmt.Println(payload.PullRequest.Head.User.Login)
+	// fmt.Println(payload.Repository.Name)
+	var headCommitSha *string
 	if payload.Action == "opened" ||
 		payload.Action == "edited" ||
-		payload.Action == "reopened" {
+		payload.Action == "reopened" ||
+		payload.Action == "synchronize" {
 
-		var headCommitSha *string = &payload.PullRequest.Head.Sha
+		headCommitSha = &payload.PullRequest.Head.Sha
 		githubClient := authentication.GetGithubClient()
 		var options = github.ListOptions{}
 
 		//commitFiles, response, err := githubClient.PullRequests.ListFiles(oauth2.NoContext, "aMMokschaf", "yamls", 17, &options)
-		commitFiles, _, _ := githubClient.PullRequests.ListFiles(oauth2.NoContext, "aMMokschaf", "yamls", 17, &options)
-		//fmt.Println("Commitfiles:", commitFiles, "\nresponse", response, "\nerr", err)
+		commitFiles, response, err := githubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Head.User.Login, payload.Repository.Name, int(payload.Number), &options)
+		fmt.Println("Commitfiles:", commitFiles, "\nresponse", response, "\nerr", err)
 		for _, file := range commitFiles {
 			if strings.Contains(*file.Filename, ".yml") || strings.Contains(*file.Filename, "yaml") {
-				fmt.Println("Found yamls in PullRequest.")
+				fmt.Println("Found yamls in PullRequest. Return HeadCommitSha.", *headCommitSha)
 				return nil, nil, *headCommitSha
 			}
 		}
 	}
-	return nil, nil, ""
+	var empty string = ""
+	headCommitSha = &empty
+	return nil, nil, *headCommitSha
 }
 
 //parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
 //and the commitSha that are parsed from the payload.
 func parseHookPush(payload githubWebhook.PushPayload) ([]string, []string, string) {
-	modifiedFilenames := lookForYaml(payload.HeadCommit.Modified)
-	addedFilenames := lookForYaml(payload.HeadCommit.Added)
+	fmt.Println("Entering parseHookPush")
+	modifiedFilenames := lookForYamlInArray(payload.HeadCommit.Modified)
+	addedFilenames := lookForYamlInArray(payload.HeadCommit.Added)
 	commitSha := payload.HeadCommit.ID
 
+	fmt.Println("ModifiedFiles:", modifiedFilenames)
+	fmt.Println("AddedFilenames:", addedFilenames)
+	fmt.Println("commitSha:", commitSha)
 	return addedFilenames, modifiedFilenames, commitSha
 }
 
-//lookForYaml looks for .yaml or .yml-files, adds them to a string-array and returns it.
-func lookForYaml(filesInCommit []string) []string {
+//lookForYamlInArray looks for .yaml or .yml-files, adds them to a string-array and returns it.
+func lookForYamlInArray(filesInCommit []string) []string {
 	var yamlFilenames []string
 	for i := 0; i < len(filesInCommit); i++ {
 		if strings.Contains(filesInCommit[i], ".yaml") ||

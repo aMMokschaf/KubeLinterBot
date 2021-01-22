@@ -7,8 +7,8 @@ import (
 	"os/exec"
 )
 
-//Callkubelinter calls the kube-linter binary in kubelinter/-folder.
-func Callkubelinter() ([]byte, error) {
+//CallKubelinter calls the kube-linter binary in kubelinter/-folder.
+func CallKubelinter() ([]byte, error) {
 	checkForKubeLinterBinary()
 	//TODO: Change folder?
 	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/")
@@ -22,14 +22,21 @@ func Callkubelinter() ([]byte, error) {
 	return out, err
 }
 
+//export und woanders aufrufen
 func checkForKubeLinterBinary() {
 	f, err := os.Open("./kubelinter/kube-linter")
 	if err != nil {
-		fmt.Println("Could not find Kubelinter.", err)
+		fmt.Println("Could not find KubeLinter.", err)
 	} else {
 		fmt.Println("KubeLinter found.")
 	}
 	defer f.Close()
 }
 
-func checkForKubeLinterUpdate() {}
+//export after implementation
+func checkForKubeLinterUpdate() {
+	//get KubeLinter-Version
+	//compare to latest release
+	//update: automatically? How to make sure that linting is not affected?
+
+}

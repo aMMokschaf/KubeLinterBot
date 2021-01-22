@@ -62,20 +62,20 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var added []string
 	var modified []string
 	var commitSha string
-	var token string = cfg.Repository.User.AccessToken
+	var token string = cfg.Repositories[0].AccessToken
 	authentication.CreateClient(token)
 
-	var userName = cfg.Repository.User.Username
-	var repoName = cfg.Repository.RepoName
+	var ownerName = cfg.Repositories[0].Owner
+	var repoName = cfg.Repositories[0].Name
 
-	added, modified, commitSha = parsehook.ParseHook(r, cfg.Webhook.Secret)
+	added, modified, commitSha = parsehook.ParseHook(r, cfg.Repositories[0].Webhook.Secret)
 	if (len(added) != 0 || len(modified) != 0) || (added == nil && modified == nil) {
-		getcommit.GetCommit(token, userName, repoName, commitSha, added, modified)
+		getcommit.GetCommit(token, ownerName, repoName, commitSha, added, modified)
 
-		var klResult, klExitCode = callkubelinter.Callkubelinter()
-		var hRStatus = handleresult.HandleResult(klExitCode)
+		var klResult, klExitCode = callkubelinter.CallKubelinter()
+		var hRStatus = handleresult.HandleResult(klExitCode, commitSha)
 		if hRStatus == 1 {
-			postcomment.PostComment(userName, repoName, commitSha, klResult)
+			postcomment.PostComment(ownerName, repoName, commitSha, klResult)
 		}
 	} else {
 		fmt.Println("No need to lint, as no .yml or .yaml were changed.")

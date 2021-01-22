@@ -1,0 +1,12 @@
+user:
+  username: KubeLinterBot
+bot:
+  port: 4567
+repositories:
+- name: yamls
+  accessToken: '{"access_token":"792cacbd8e4ceff70ea337ab6f720432f1d06e63","token_type":"bearer","expiry":"0001-01-01T00:00:00Z"}'
+  owner: aMMokschaf
+  repositories:
+    secret: testsecret
+    events: []
+    address: ""

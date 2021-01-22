@@ -8,19 +8,38 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// type config struct {
+// 	Repository struct {
+// 		RepoName string `yaml:"reponame"`
+// 		User     struct {
+// 			Username    string `yaml:"username"`
+// 			AccessToken string `yaml:"accessToken"`
+// 		}
+// 	}
+// 	Bot struct {
+// 		Port int `yaml:"port"`
+// 	}
+// 	Webhook struct {
+// 		Secret string `yaml:"secret"`
+// 	}
+// }
+
 type config struct {
-	Repository struct {
-		RepoName string `yaml:"reponame"`
-		User     struct {
-			Username    string `yaml:"username"`
-			AccessToken string `yaml:"accessToken"`
-		}
+	User struct {
+		Username string `yaml:"username"`
 	}
 	Bot struct {
 		Port int `yaml:"port"`
 	}
-	Webhook struct {
-		Secret string `yaml:"secret"`
+	Repositories []struct {
+		Name        string `yaml:"name"`
+		AccessToken string `yaml:"accessToken"`
+		Owner       string `yaml:"owner"`
+		Webhook     struct {
+			Secret  string   `yaml:"secret"`
+			Events  []string `yaml:"events"`
+			Address string   `yaml:"address"`
+		} `yaml:"repositories"`
 	}
 }
 

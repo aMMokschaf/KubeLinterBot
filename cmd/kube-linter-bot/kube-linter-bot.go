@@ -14,11 +14,11 @@ func main() {
 	cfg = optionParser()
 	var wg sync.WaitGroup
 	//TODO: implement check if token is actually valid, not just "empty"
-	if cfg.Repository.User.AccessToken == "empty" {
+	if cfg.Repositories[0].AccessToken == "empty" {
 		wg.Add(1)
 		go authentication.RunAuth(&wg)
 		wg.Wait()
-		cfg.Repository.User.AccessToken = authentication.GetFullToken()
+		cfg.Repositories[0].AccessToken = authentication.GetFullToken()
 		status := writeOptionsToFile()
 		if status == false {
 			fmt.Println("Could not update configuration.")
