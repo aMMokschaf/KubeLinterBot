@@ -76,11 +76,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		var klResult, klExitCode = callkubelinter.CallKubelinter()
 		var hRStatus = handleresult.HandleResult(klExitCode, commitSha)
-		if hRStatus == 1 {
-			postcomment.PostComment(ownerName, repoName, commitSha, klResult)
+		if hRStatus == 1 && prSource.Needed == false {
+			postcomment.PostCommentPush(ownerName, repoName, commitSha, klResult)
+		} else if hRStatus == 1 && prSource.Needed == true {
+			postcomment.PostPullRequestReviewWithComment(ownerName, repoName, commitSha, klResult)
 		}
 	} else {
-		fmt.Println("No need to lint, as no .yml or .yaml were changed.")
+		fmt.Println("No need to lint, as no .yml or .yaml were changed.\nKubeLinterBot is listening for Webhooks...")
 	}
 }
 

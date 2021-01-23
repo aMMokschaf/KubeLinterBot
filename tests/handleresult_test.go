@@ -36,7 +36,7 @@ func TestRemoveDownloadedFiles(t *testing.T) {
 		t.Error("Setting up TestRemoveDownloadedFiles failed.", err)
 	}
 
-	handleresult.RemoveDownloadedFiles("../downloadedYaml/")
+	handleresult.RemoveDownloadedFiles("../downloadedYaml/", 0)
 	f, err := os.Open("../downloadedYaml/")
 	if err != nil {
 		fmt.Println("Could not open folder.", err)
