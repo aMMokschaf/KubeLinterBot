@@ -2,6 +2,7 @@
 package postcomment
 
 import (
+	"context"
 	"fmt"
 	"main/internal/authentication"
 
@@ -9,8 +10,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
-//PostComment authorizes with github to post KubeLinter's results to the commit.
-func PostComment(username string, reponame string, commitSha string, result []byte) error {
+//PostCommentPush authorizes with github to post KubeLinter's results to the commit.
+func PostCommentPush(username string, reponame string, commitSha string, result []byte) error {
 	githubClient := authentication.GetGithubClient()
 
 	var bdy string = string(result)
@@ -25,7 +26,47 @@ func PostComment(username string, reponame string, commitSha string, result []by
 	}
 }
 
+//PostPullRequestReviewWithComment TODO blabla
 func PostPullRequestReviewWithComment(username string, reponame string, commitSha string, result []byte) error {
+	fmt.Println("postpullRequestReviewWithComment method")
+	fmt.Println(username, reponame, commitSha, result)
+	githubClient := authentication.GetGithubClient()
+	//var PullRequestReviewRequest
+	var comments []*github.DraftReviewComment
+	var comment github.DraftReviewComment
+	var commentString = "blablatest"
+	fmt.Println(commentString)
+	comment.Body = &commentString
+
+	var review github.PullRequestReviewRequest
+
+	review.Comments = comments
+
+	rev, resp, err := githubClient.PullRequests.CreateReview(context.Background(), "aMMokschaf", "yamls", 36, &review)
+	fmt.Println("pullrequestreview", rev, resp, err)
+	rev, resp, err = githubClient.PullRequests.SubmitReview(context.Background(), "aMMokschaf", "yamls", 36, 0, &review)
+	fmt.Println("pullrequestreview", rev, resp, err)
+
+	//---
+
+	// fmt.Println(username, reponame, commitSha, result)
+	// githubClient := authentication.GetGithubClient()
+
+	// var commentString = "blablatest"
+	// fmt.Println(commentString)
+
+	// var review github.PullRequestReview
+
+	// review.Body = &commentString
+	// rev, _, err := githubClient.PullRequests.CreateReview(context.Background(), "KubeLinterBot", "yamls", 17, review)
+	// fmt.Println("pullrequestreview", rev, err)
+
+	//---
+
+	//githubClient.PullRequests.SubmitReview(context.Background(), "aMMokschaf", "yamls", 17, 0, rev)
+
+	//githubClient.PullRequests.SubmitReview(context.Background(), ownername, reponame, pullnumber)
+
 	// githubClient := authentication.GetGithubClient()
 
 	// var bdy string = string(result)
