@@ -63,15 +63,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var modified []string
 	var commitSha string
 	var branchRef string
+	var prSource parsehook.PrSourceBranchInformation
 	var token string = cfg.Repositories[0].AccessToken
 	authentication.CreateClient(token)
 
 	var ownerName = cfg.Repositories[0].Owner
 	var repoName = cfg.Repositories[0].Name
 
-	added, modified, commitSha, branchRef = parsehook.ParseHook(r, cfg.Repositories[0].Webhook.Secret)
+	added, modified, commitSha, branchRef, prSource = parsehook.ParseHook(r, cfg.Repositories[0].Webhook.Secret)
 	if (len(added) != 0 || len(modified) != 0) || (added == nil && modified == nil) {
-		getcommit.GetCommit(token, ownerName, repoName, commitSha, branchRef, added, modified)
+		getcommit.GetCommit(token, ownerName, repoName, commitSha, branchRef, added, modified, prSource)
 
 		var klResult, klExitCode = callkubelinter.CallKubelinter()
 		var hRStatus = handleresult.HandleResult(klExitCode, commitSha)

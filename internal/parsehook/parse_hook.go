@@ -12,16 +12,38 @@ import (
 	githubWebhook "gopkg.in/go-playground/webhooks.v5/github"
 )
 
+type PrSourceBranchInformation struct {
+	UserName  string
+	RepoName  string
+	BranchRef string
+	Needed    bool
+}
+
+func getPRI(payload githubWebhook.PullRequestPayload) PrSourceBranchInformation {
+	var pri PrSourceBranchInformation
+	pri.UserName = payload.PullRequest.User.Login
+	pri.RepoName = payload.PullRequest.Head.Repo.Name
+	pri.BranchRef = payload.PullRequest.Head.Ref
+	if payload.PullRequest.Head.Repo.FullName != payload.PullRequest.Base.Repo.FullName {
+		pri.Needed = true
+	} else {
+		pri.Needed = false
+	}
+	return pri
+}
+
 //parseHookPullRequest gets a githubWebhook.PullRequestPayload and checks for .yml and .yaml-files
 //return should be changed
-func parseHookPullRequest(payload githubWebhook.PullRequestPayload) ([]string, []string, string, string) {
+func parseHookPullRequest(payload githubWebhook.PullRequestPayload) ([]string, []string, string, string, PrSourceBranchInformation) {
 	fmt.Println("Parse Hook Pull Request method")
+	fmt.Println(payload)
+	pullRequestInformation := getPRI(payload)
 	// fmt.Println(payload)
 	// fmt.Println(payload.PullRequest.Number)
 	// fmt.Println(payload.PullRequest.Head.User.Login)
 	// fmt.Println(payload.Repository.Name)
 	var headCommitSha *string
-	var branchRef string = payload.PullRequest.Base.Ref
+	var branchRef string = payload.PullRequest.Head.Ref
 	if payload.Action == "opened" ||
 		payload.Action == "edited" ||
 		payload.Action == "reopened" ||
@@ -37,13 +59,13 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload) ([]string, [
 		for _, file := range commitFiles {
 			if strings.Contains(*file.Filename, ".yml") || strings.Contains(*file.Filename, "yaml") {
 				fmt.Println("Found yamls in PullRequest. Return HeadCommitSha.", *headCommitSha)
-				return nil, nil, *headCommitSha, branchRef
+				return nil, nil, *headCommitSha, branchRef, pullRequestInformation
 			}
 		}
 	}
 	var empty string = ""
 	headCommitSha = &empty
-	return nil, nil, *headCommitSha, branchRef
+	return nil, nil, *headCommitSha, branchRef, pullRequestInformation
 }
 
 //parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
@@ -79,7 +101,7 @@ func lookForYamlInArray(filesInCommit []string) []string {
 //ParseHook checks the hook for githubWebhook.PushPayload or githubWebhook.PullRequestPayload
 //and passes the payloads to the appropriate methods. It ultimately returns
 //a list of modified files, a list of added files, and the commit-SHA.
-func ParseHook(r *http.Request, secret string) ([]string, []string, string, string) {
+func ParseHook(r *http.Request, secret string) ([]string, []string, string, string, PrSourceBranchInformation) {
 	hook, _ := githubWebhook.New(githubWebhook.Options.Secret(secret))
 
 	payload, err := hook.Parse(r, githubWebhook.PushEvent, githubWebhook.PullRequestEvent)
@@ -93,6 +115,8 @@ func ParseHook(r *http.Request, secret string) ([]string, []string, string, stri
 	var modified []string
 	var commitSha string
 	var branchRef string
+	var pullRequestInformation PrSourceBranchInformation
+	pullRequestInformation.Needed = false
 
 	switch payload.(type) {
 
@@ -105,8 +129,8 @@ func ParseHook(r *http.Request, secret string) ([]string, []string, string, stri
 	case githubWebhook.PullRequestPayload:
 		fmt.Println("Receiving Pull-Request-Payload")
 		pullRequest := payload.(githubWebhook.PullRequestPayload)
-		added, modified, commitSha, branchRef = parseHookPullRequest(pullRequest)
+		added, modified, commitSha, branchRef, pullRequestInformation = parseHookPullRequest(pullRequest)
 		//fmt.Printf("%+v\n", pullRequest)
 	}
-	return added, modified, commitSha, branchRef
+	return added, modified, commitSha, branchRef, pullRequestInformation
 }
