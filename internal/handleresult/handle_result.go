@@ -10,7 +10,7 @@ import (
 
 //HandleResult calls removeDownloadedFiles after linting. After this, it passes kubelinters exit-code back.
 func HandleResult(status error, commitSha string) int {
-	err := RemoveDownloadedFiles("./downloadedYaml/"+commitSha+"/", 1)
+	err := RemoveDownloadedFiles("./downloadedYaml/" + commitSha + "/")
 	fmt.Println("Removing downloaded files after linting...")
 	if err != nil {
 		fmt.Println("Error while removing files:\n", err)
@@ -25,10 +25,7 @@ func HandleResult(status error, commitSha string) int {
 }
 
 //RemoveDownloadedFiles removes all downloaded files in order to keep the storage-requirements low.
-func RemoveDownloadedFiles(dir string, debug int) error {
-	if debug == 1 {
-		return nil
-	}
+func RemoveDownloadedFiles(dir string) error {
 	d, err := os.Open(dir)
 	if err != nil {
 		return err
