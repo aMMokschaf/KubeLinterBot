@@ -32,20 +32,56 @@ func PostPullRequestReviewWithComment(username string, reponame string, commitSh
 	fmt.Println(username, reponame, commitSha, result)
 	githubClient := authentication.GetGithubClient()
 	//var PullRequestReviewRequest
+
+	var commentPath = "server-deployment/deeper/deep-server.yaml"
+	var commentPosition = 0
+	var commentBody = "blablatest"
+
+	var comment = github.DraftReviewComment{}
+
+	fmt.Println(commentPath, commentPosition, commentBody)
+	comment.Path = &commentPath
+	//comment.Position = &commentPosition
+	comment.Body = &commentBody
+	fmt.Println(comment)
+
 	var comments []*github.DraftReviewComment
-	var comment github.DraftReviewComment
-	var commentString = "blablatest"
-	fmt.Println(commentString)
-	comment.Body = &commentString
+	comments = append(comments, &comment)
+	fmt.Println(comments)
 
-	var review github.PullRequestReviewRequest
+	var stringEvent = "COMMENT"
+	var commitIDString = ""
 
-	review.Comments = comments
+	//var review = github.PullRequestReviewRequest{CommitID: &commitIDString, Body: &commentBody, Event: &stringEvent, Comments: comments}
+	var review = github.PullRequestReviewRequest{CommitID: &commitIDString, Body: &commentBody, Event: &stringEvent, Comments: nil}
+	fmt.Println(review)
+	// review.Event = &stringEvent
+	// review.CommitID = &stringEvent
 
-	rev, resp, err := githubClient.PullRequests.CreateReview(context.Background(), "aMMokschaf", "yamls", 36, &review)
-	fmt.Println("pullrequestreview", rev, resp, err)
-	rev, resp, err = githubClient.PullRequests.SubmitReview(context.Background(), "aMMokschaf", "yamls", 36, 0, &review)
-	fmt.Println("pullrequestreview", rev, resp, err)
+	// review.Comments = comments
+
+	// var id = int64(77734728)
+	// var userLogin = "KubeLinterBot"
+	// var user = github.User{Login: &userLogin, ID: &id}
+	// var users []*github.User
+	// append(users, &user)
+	// var reviewer = github.Reviewers{Users: users}
+	var reviewers []string
+	reviewers = append(reviewers, "KubeLinterBot")
+	// var revReq = github.ReviewersRequest{Reviewers: reviewers}
+	// pr, r, err := githubClient.PullRequests.RequestReviewers(context.Background(), "aMMokschaf", "yamls", 37, revReq)
+	// fmt.Println("pr", pr, "r", r, "err", err)
+	rev, resp, err := githubClient.PullRequests.CreateReview(context.Background(), "aMMokschaf", "yamls", 37, &review)
+	fmt.Println("create review rev", rev, "\nresp", resp, "\nerr", err)
+
+	// var grev = github.PullRequestReview{}
+	// grev.Body = &commentBody
+	// grev
+
+	// githubClient.PullRequests.SubmitReview(context.Background(), "aMMokschaf", "yamls", 17, 0, rev)
+
+	// rev, resp, err = githubClient.PullRequests.SubmitReview(context.Background(), "aMMokschaf", "yamls", 36, 0, &review)
+	// fmt.Println("submit review rev", rev, "\nresp", resp, "\nerr", err)
 
 	//---
 

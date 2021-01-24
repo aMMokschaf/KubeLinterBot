@@ -53,6 +53,7 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload) ([]string, [
 		githubClient := authentication.GetGithubClient()
 		var options = github.ListOptions{}
 
+		//TODO change Head.User.Login so that it is owner repo
 		//commitFiles, response, err := githubClient.PullRequests.ListFiles(oauth2.NoContext, "aMMokschaf", "yamls", 17, &options)
 		commitFiles, response, err := githubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Head.User.Login, payload.Repository.Name, int(payload.Number), &options)
 		fmt.Println("Commitfiles:", commitFiles, "\nresponse", response, "\nerr", err)
