@@ -10,7 +10,6 @@ import (
 	"main/internal/getcommit"
 	"main/internal/handleresult"
 	"main/internal/parsehook"
-	"main/internal/postcomment"
 	"net/http"
 	"strconv"
 	"time"
@@ -59,28 +58,28 @@ func logWith(logger *log.Logger) Option {
 
 //ServeHTTP waits for a github-webhook and then blabla TODO
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var added []string
-	var modified []string
+	// var added []string
+	// var modified []string
 	var commitSha string
-	var branchRef string
-	var prSource parsehook.PrSourceBranchInformation
 	var token string = cfg.Repositories[0].AccessToken
 	authentication.CreateClient(token)
 
-	var ownerName = cfg.Repositories[0].Owner
-	var repoName = cfg.Repositories[0].Name
+	// var ownerName = cfg.Repositories[0].Owner
+	// var repoName = cfg.Repositories[0].Name
 
-	added, modified, commitSha, branchRef, prSource = parsehook.ParseHook(r, cfg.Repositories[0].Webhook.Secret)
-	if (len(added) != 0 || len(modified) != 0) || (added == nil && modified == nil) {
-		getcommit.GetCommit(token, ownerName, repoName, commitSha, branchRef, added, modified, prSource)
+	result := parsehook.ParseHook(r, cfg.Repositories[0].Webhook.Secret)
+	//make prettier. commitSha should be named dl-directory or something
+	if result.Event == "push" {
+		commitSha = result.Push.Sha
+	} else if result.Event == "pull" {
+		commitSha = result.Pull.Sha
+	}
+	fmt.Println("ParseResult:", result)
+	if result.Event != "none" {
+		getcommit.GetCommit(result)
 
-		var klResult, klExitCode = callkubelinter.CallKubelinter()
-		var hRStatus = handleresult.HandleResult(klExitCode, commitSha)
-		if hRStatus == 1 && prSource.Needed == false {
-			postcomment.PostCommentPush(ownerName, repoName, commitSha, klResult)
-		} else if hRStatus == 1 && prSource.Needed == true {
-			postcomment.PostPullRequestReviewWithComment(ownerName, repoName, commitSha, klResult)
-		}
+		var lintResult, exitCode = callkubelinter.CallKubelinter()
+		handleresult.Handle(result, lintResult, exitCode, commitSha)
 	} else {
 		fmt.Println("No need to lint, as no .yml or .yaml were changed.\nKubeLinterBot is listening for Webhooks...")
 	}

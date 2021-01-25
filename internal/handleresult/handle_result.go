@@ -4,13 +4,15 @@ package handleresult
 
 import (
 	"fmt"
+	"main/internal/parsehook"
+	"main/internal/postcomment"
 	"os"
 	"path/filepath"
 )
 
-//HandleResult calls removeDownloadedFiles after linting. After this, it passes kubelinters exit-code back.
-func HandleResult(status error, commitSha string) int {
-	err := RemoveDownloadedFiles("./downloadedYaml/"+commitSha+"/", 0)
+//Handle calls removeDownloadedFiles after linting. After this, it passes kubelinters exit-code back.
+func Handle(data parsehook.ParseResult, result []byte, status error, dir string) error {
+	err := RemoveDownloadedFiles("./downloadedYaml/"+dir+"/", 0)
 	fmt.Println("Removing downloaded files after linting...")
 	if err != nil {
 		fmt.Println("Error while removing files:\n", err)
@@ -18,10 +20,18 @@ func HandleResult(status error, commitSha string) int {
 		fmt.Println("Files removed.")
 	}
 	if status != nil {
-		return 1
+		if data.Event == "push" {
+			err = postcomment.Push(data.Push.OwnerName, data.Push.RepoName, data.Push.Sha, result)
+		} else if data.Event == "pull" {
+			err = postcomment.PullRequestReview(data.Pull.OwnerName, data.Pull.RepoName, data.Pull.Sha, result)
+		}
+		if err != nil {
+			return err
+		}
 	} else {
-		return 0
+		return nil
 	}
+	return nil
 }
 
 //RemoveDownloadedFiles removes all downloaded files in order to keep the storage-requirements low.
