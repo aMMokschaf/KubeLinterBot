@@ -140,6 +140,9 @@ func ParseHook(r *http.Request, secret string) ParseResult { //([]string, []stri
 		pullRes = parseHookPullRequest(pullRequest)
 		result.Pull = pullRes
 		result.Event = "pull"
+		if result.Pull.Sha == "" {
+			result.Event = "none"
+		}
 	}
 
 	result.Push = pushRes
