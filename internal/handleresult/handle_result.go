@@ -23,7 +23,7 @@ func Handle(data parsehook.ParseResult, result []byte, status error, dir string)
 		if data.Event == "push" {
 			err = postcomment.Push(data.Push.OwnerName, data.Push.RepoName, data.Push.Sha, result)
 		} else if data.Event == "pull" {
-			err = postcomment.PullRequestReview(data.Pull.OwnerName, data.Pull.RepoName, data.Pull.Sha, result)
+			err = postcomment.PullRequestReview(data.Pull.OwnerName, data.Pull.RepoName, data.Pull.Sha, data.Pull.Number, result)
 		}
 		if err != nil {
 			return err

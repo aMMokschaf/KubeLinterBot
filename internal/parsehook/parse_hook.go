@@ -28,6 +28,7 @@ type PullResult struct {
 	OwnerName string
 	Branch    string
 	Sha       string
+	Number    int64
 }
 
 type ParseResult struct {
@@ -49,6 +50,7 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload) PullResult {
 		result.RepoName = payload.PullRequest.Head.Repo.Name
 		result.Branch = payload.PullRequest.Head.Ref
 		result.Sha = payload.PullRequest.Head.Sha
+		result.Number = payload.Number
 
 		githubClient := authentication.GetGithubClient()
 
