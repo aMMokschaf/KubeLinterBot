@@ -10,8 +10,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
-//PostCommentPush authorizes with github to post KubeLinter's results to the commit.
-func PostCommentPush(username string, reponame string, commitSha string, result []byte) error {
+//Push authorizes with github to post KubeLinter's results to the commit.
+func Push(username string, reponame string, commitSha string, result []byte) error {
 	githubClient := authentication.GetGithubClient()
 
 	var bdy string = string(result)
@@ -26,8 +26,8 @@ func PostCommentPush(username string, reponame string, commitSha string, result 
 	}
 }
 
-//PostPullRequestReviewWithComment TODO blabla
-func PostPullRequestReviewWithComment(username string, reponame string, commitSha string, result []byte) error {
+//PullRequestReview TODO blabla
+func PullRequestReview(username string, reponame string, commitSha string, result []byte) error {
 	fmt.Println("postpullRequestReviewWithComment method")
 	fmt.Println(username, reponame, commitSha, result)
 	githubClient := authentication.GetGithubClient()

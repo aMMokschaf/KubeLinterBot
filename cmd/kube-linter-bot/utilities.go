@@ -8,22 +8,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// type config struct {
-// 	Repository struct {
-// 		RepoName string `yaml:"reponame"`
-// 		User     struct {
-// 			Username    string `yaml:"username"`
-// 			AccessToken string `yaml:"accessToken"`
-// 		}
-// 	}
-// 	Bot struct {
-// 		Port int `yaml:"port"`
-// 	}
-// 	Webhook struct {
-// 		Secret string `yaml:"secret"`
-// 	}
-// }
-
 type config struct {
 	User struct {
 		Username string `yaml:"username"`
@@ -44,6 +28,10 @@ type config struct {
 }
 
 var cfg config
+
+func GetConfig() config {
+	return cfg
+}
 
 //optionParser reads a config-file named "kube-linter-bot-configuration.yaml", that has
 //to be located in the same folder as kube-linter-bot and parses its contents to a struct.
