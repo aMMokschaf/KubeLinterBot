@@ -74,7 +74,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else if result.Event == "pull" {
 		commitSha = result.Pull.Sha
 	}
-
+	fmt.Println("ParseResult:", result)
 	if result.Event != "none" {
 		getcommit.GetCommit(result)
 

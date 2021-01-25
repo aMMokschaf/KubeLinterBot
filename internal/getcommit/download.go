@@ -18,6 +18,7 @@ const mainDir = "./downloadedYaml/"
 //These are then passed to the KubeLinter-binary.
 func DownloadCommit(ownername string, reponame string, commitSha string, branch string) ([]*github.RepositoryContent, error) {
 	githubClient := authentication.GetGithubClient()
+	fmt.Println(ownername, reponame, commitSha, branch)
 
 	//TODO path not hardcoded
 	repoContent, err := downloadFolder(ownername, reponame, "", commitSha, branch, githubClient)

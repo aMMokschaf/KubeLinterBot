@@ -74,7 +74,7 @@ func parseHookPush(payload githubWebhook.PushPayload) PushResult {
 	var result = PushResult{}
 	modifiedFilenames := lookForYamlInArray(payload.HeadCommit.Modified)
 	addedFilenames := lookForYamlInArray(payload.HeadCommit.Added)
-	if len(modifiedFilenames) == 0 || len(addedFilenames) == 0 {
+	if len(modifiedFilenames) == 0 && len(addedFilenames) == 0 {
 		return result
 	} else {
 		commitSha := payload.HeadCommit.ID
@@ -85,7 +85,7 @@ func parseHookPush(payload githubWebhook.PushPayload) PushResult {
 		result.RepoName = payload.Repository.Name
 		result.OwnerName = payload.Repository.Owner.Login
 		result.Sha = commitSha
-		result.Branch = branchRef
+		result.Branch = ""
 
 		return result
 	}
@@ -129,12 +129,14 @@ func ParseHook(r *http.Request, secret string) ParseResult { //([]string, []stri
 		fmt.Println("Receiving Push-Payload:")
 		commit := payload.(githubWebhook.PushPayload)
 		pushRes = parseHookPush(commit)
+		result.Push = pushRes
 		result.Event = "push"
 
 	case githubWebhook.PullRequestPayload:
 		fmt.Println("Receiving Pull-Request-Payload:")
 		pullRequest := payload.(githubWebhook.PullRequestPayload)
 		pullRes = parseHookPullRequest(pullRequest)
+		result.Pull = pullRes
 		result.Event = "pull"
 	}
 
