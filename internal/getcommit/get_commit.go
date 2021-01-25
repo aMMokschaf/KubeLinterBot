@@ -1,9 +1,14 @@
 package getcommit
 
-import "main/internal/parsehook"
+import (
+	"fmt"
+	"main/internal/parsehook"
+)
 
 //GetCommit TODO Kommentar
 func GetCommit(result parsehook.ParseResult) {
+
+	fmt.Println("GetCommit")
 	var ownername string
 	var reponame string
 	var commitSha string

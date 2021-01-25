@@ -45,6 +45,7 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload) PullResult {
 		payload.Action == "synchronized" {
 
 		result.UserName = payload.PullRequest.User.Login
+		result.OwnerName = payload.PullRequest.Head.Repo.Owner.Login
 		result.RepoName = payload.PullRequest.Head.Repo.Name
 		result.Branch = payload.PullRequest.Head.Ref
 		result.Sha = payload.PullRequest.Head.Sha
@@ -84,8 +85,9 @@ func parseHookPush(payload githubWebhook.PushPayload) PushResult {
 		result.ModifiedFiles = modifiedFilenames
 		result.RepoName = payload.Repository.Name
 		result.OwnerName = payload.Repository.Owner.Login
+		result.UserName = payload.Pusher.Name
 		result.Sha = commitSha
-		result.Branch = ""
+		result.Branch = branchRef
 
 		return result
 	}
@@ -142,5 +144,6 @@ func ParseHook(r *http.Request, secret string) ParseResult { //([]string, []stri
 
 	result.Push = pushRes
 	result.Pull = pullRes
+	fmt.Println("ParseResult:", result)
 	return result
 }

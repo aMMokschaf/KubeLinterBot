@@ -17,19 +17,21 @@ const mainDir = "./downloadedYaml/"
 //DownloadCommit authenticates with oauth and downloads all folders with .yaml or .yml-files.
 //These are then passed to the KubeLinter-binary.
 func DownloadCommit(ownername string, reponame string, commitSha string, branch string) ([]*github.RepositoryContent, error) {
+	fmt.Println("DownloadCommit branch", branch)
 	githubClient := authentication.GetGithubClient()
 	fmt.Println(ownername, reponame, commitSha, branch)
 
 	//TODO path not hardcoded
 	repoContent, err := downloadFolder(ownername, reponame, "", commitSha, branch, githubClient)
 	if err != nil {
-		fmt.Println("Error while creating folder DownloadCommit needed true", err)
+		return nil, err
 	}
 	return repoContent, err
 }
 
 //downloadFolder downloads all files in a folder, creating subfolders as necessary.
 func downloadFolder(ownername string, reponame string, subpath string, commitSha string, branchRef string, client *github.Client) ([]*github.RepositoryContent, error) {
+	fmt.Println("downloadFolder")
 	var commitDir string
 	if commitSha != "" {
 		commitDir = mainDir + commitSha + "/"
@@ -84,6 +86,7 @@ func downloadFolder(ownername string, reponame string, subpath string, commitSha
 
 //downloadFile downloads a single file.
 func downloadFile(url string, filepath string) error {
+	fmt.Println("downloadFile", url)
 	out, err := os.Create(filepath)
 	if err != nil {
 		return err
