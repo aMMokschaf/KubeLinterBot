@@ -51,7 +51,7 @@ func PullRequestReview(username string, reponame string, commitSha string, resul
 	comments = append(comments, &comment)
 	fmt.Println(comments)
 
-	// var stringEvent = "REQUEST_CHANGES"
+	var stringEvent = "REQUEST_CHANGES"
 	// var commitIDString = "" //empty weil dann neuester commit //commitSha
 
 	//var review2 = github.PullRequestReviewRequest{CommitID: &commitIDString, Body: &commentBody, Event: &stringEvent, Comments: comments}
@@ -73,11 +73,15 @@ func PullRequestReview(username string, reponame string, commitSha string, resul
 	// 	return err
 	//}
 
-	re, resp, err := githubClient.PullRequests.CreateReview(context.Background(), "aMMokschaf", "yamls", 39, &review)
+	re, resp, err := githubClient.PullRequests.CreateReview(context.Background(), "aMMokschaf", "yamls", 41, &review)
 	fmt.Println("create review re", re, "\nresp", resp, "\nerr", err)
 
-	//githubClient.PullRequests.SubmitReview(context.Background(), "aMMokschaf", "yamls", 39, re.GetID(), &review2)
+	review2 := github.PullRequestReviewRequest{}
 
+	review2.Body = &commentBody
+	review2.Event = &stringEvent
+	re, resp, err = githubClient.PullRequests.SubmitReview(context.Background(), "aMMokschaf", "yamls", 41, re.GetID(), &review2)
+	fmt.Println("create review re", re, "\nresp", resp, "\nerr", err)
 	return nil
 }
 
