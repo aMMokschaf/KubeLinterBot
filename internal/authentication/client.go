@@ -56,17 +56,17 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 
 //CreateClient creates and returns the authObject needed to login to github.
 func CreateClient(token string) *Client {
-	var auth Client
-	auth.personalAccessToken = extractTokenStringFromJSONToken(token)
+	var c Client
+	c.personalAccessToken = extractTokenStringFromJSONToken(token)
 
 	tokenSource := &TokenSource{
-		AccessToken: auth.personalAccessToken,
+		AccessToken: c.personalAccessToken,
 	}
 
-	auth.oauthClient = oauth2.NewClient(context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{ /*Transport: loggingRoundTripper{}*/ }), tokenSource)
-	auth.GithubClient = github.NewClient(auth.oauthClient)
+	c.oauthClient = oauth2.NewClient(context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{ /*Transport: loggingRoundTripper{}*/ }), tokenSource)
+	c.GithubClient = github.NewClient(c.oauthClient)
 
-	return &auth
+	return &c
 }
 
 type jsonTokenStruct struct {
