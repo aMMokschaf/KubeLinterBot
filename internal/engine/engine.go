@@ -34,14 +34,10 @@ func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) {
 		fmt.Println("Error while parsing hook:\n", err)
 	}
 
-	//make prettier. commitSha should be named dl-directory or something
-	if result.Event == "push" {
-		commitSha = result.Push.Sha
-	} else if result.Event == "pull" {
-		commitSha = result.Pull.Sha
-	}
-	fmt.Println("ParseResult:", result)
-	if result.Event != "none" {
+	commitSha = result.Sha
+
+	//fmt.Println("ParseResult:", result)
+	if result != nil {
 		getcommit.GetCommit(result, *client)
 
 		var lintResult, exitCode = callkubelinter.CallKubelinter()

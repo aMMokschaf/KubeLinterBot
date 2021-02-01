@@ -27,7 +27,7 @@ func Push(username string, reponame string, commitSha string, result []byte, cli
 }
 
 //PullRequestReview TODO blabla
-func PullRequestReview(username string, reponame string, commitSha string, number int64, result []byte, client *authentication.Client) error {
+func PullRequestReview(username string, reponame string, commitSha string, number int, result []byte, client *authentication.Client) error {
 	fmt.Println("postpullRequestReviewWithComment method")
 	fmt.Println(username, reponame, commitSha, string(result))
 	//githubClient := authentication.GetGithubClient()
