@@ -18,8 +18,8 @@ func GetEngine() *analysisEngine {
 	return &ae
 }
 
-func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) {
-	fmt.Println("test")
+func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) error {
+	//fmt.Println("test")
 	// var added []string
 	// var modified []string
 	var commitSha string
@@ -32,17 +32,19 @@ func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) {
 	result, err := parsehook.ParseHook(r, cfg.Repositories[0].Webhook.Secret, client)
 	if err != nil {
 		fmt.Println("Error while parsing hook:\n", err)
-	}
-
-	commitSha = result.Sha
-
-	//fmt.Println("ParseResult:", result)
-	if result != nil {
-		getcommit.GetCommit(result, *client)
-
-		var lintResult, exitCode = callkubelinter.CallKubelinter()
-		handleresult.Handle(result, lintResult, exitCode, commitSha, client)
+		return err
 	} else {
-		fmt.Println("No need to lint, as no .yml or .yaml were changed.\nKubeLinterBot is listening for Webhooks...")
+		commitSha = result.Sha
+
+		//fmt.Println("ParseResult:", result)
+		if result != nil {
+			getcommit.GetCommit(result, *client)
+
+			var lintResult, exitCode = callkubelinter.CallKubelinter()
+			handleresult.Handle(result, lintResult, exitCode, commitSha, client)
+		} else {
+			fmt.Println("No need to lint, as no .yml or .yaml were changed.\nKubeLinterBot is listening for Webhooks...")
+		}
 	}
+	return nil
 }

@@ -20,7 +20,7 @@ type GeneralizedResult struct {
 	Branch    string
 	Number    int
 
-	AddedOrModifiedFiles *[]string
+	AddedOrModifiedFiles []string
 }
 
 //parseHookPullRequest gets a githubWebhook.PullRequestPayload and checks for .yml and .yaml-files
@@ -48,7 +48,7 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *auth
 
 		for _, file := range files {
 			if strings.Contains(*file.Filename, ".yml") || strings.Contains(*file.Filename, "yaml") {
-				*result.AddedOrModifiedFiles = append(*result.AddedOrModifiedFiles, *file.Filename)
+				result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, *file.Filename)
 				return &result, nil
 			}
 		}
@@ -94,13 +94,13 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *auth
 func parseHookPush(payload githubWebhook.PushPayload, client *authentication.Client) (*GeneralizedResult, error) {
 	var result = GeneralizedResult{}
 
-	*result.AddedOrModifiedFiles = lookForYamlInArray(payload.HeadCommit.Added)
+	result.AddedOrModifiedFiles = lookForYamlInArray(payload.HeadCommit.Added)
 	modifiedFiles := lookForYamlInArray(payload.HeadCommit.Modified)
 	for _, file := range modifiedFiles {
-		*result.AddedOrModifiedFiles = append(*result.AddedOrModifiedFiles, file)
+		result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, file)
 	}
 
-	if len(*result.AddedOrModifiedFiles) == 0 {
+	if len(result.AddedOrModifiedFiles) == 0 {
 		return nil, nil
 	} else {
 		commitSha := payload.HeadCommit.ID

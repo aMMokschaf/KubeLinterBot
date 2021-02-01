@@ -59,7 +59,10 @@ func logWith(logger *log.Logger) Option {
 //ServeHTTP waits for a github-webhook and then blabla TODO
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ae := engine.GetEngine()
-	ae.Analyse(r, s.cfg)
+	err := ae.Analyse(r, s.cfg)
+	if err != nil {
+		s.log("Something went wrong:\n", err)
+	}
 	//TODO response?
 }
 

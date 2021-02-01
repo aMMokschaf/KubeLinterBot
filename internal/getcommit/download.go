@@ -16,7 +16,7 @@ const mainDir = "./downloadedYaml/"
 
 //DownloadCommit authenticates with oauth and downloads all folders with .yaml or .yml-files.
 //These are then passed to the KubeLinter-binary.
-func DownloadCommit(ownername string, reponame string, commitSha string, branch string, filenames *[]string, number int, client authentication.Client) ([]*github.RepositoryContent, error) {
+func DownloadCommit(ownername string, reponame string, commitSha string, branch string, filenames []string, number int, client authentication.Client) ([]*github.RepositoryContent, error) {
 	repoContent, err := downloadFolder(ownername, reponame, "", commitSha, branch, client.GithubClient)
 	if err != nil {
 		return nil, err
