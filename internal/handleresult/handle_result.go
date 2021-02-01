@@ -4,6 +4,7 @@ package handleresult
 
 import (
 	"fmt"
+	"main/internal/authentication"
 	"main/internal/parsehook"
 	"main/internal/postcomment"
 	"os"
@@ -11,7 +12,7 @@ import (
 )
 
 //Handle calls removeDownloadedFiles after linting. After this, it passes kubelinters exit-code back.
-func Handle(data parsehook.ParseResult, result []byte, status error, dir string) error {
+func Handle(data *parsehook.ParseResult, result []byte, status error, dir string, client *authentication.Client) error {
 	err := RemoveDownloadedFiles("./downloadedYaml/"+dir+"/", 0)
 	fmt.Println("Removing downloaded files after linting...")
 	if err != nil {
@@ -21,9 +22,9 @@ func Handle(data parsehook.ParseResult, result []byte, status error, dir string)
 	}
 	if status != nil {
 		if data.Event == "push" {
-			err = postcomment.Push(data.Push.OwnerName, data.Push.RepoName, data.Push.Sha, result)
+			err = postcomment.Push(data.Push.OwnerName, data.Push.RepoName, data.Push.Sha, result, client)
 		} else if data.Event == "pull" {
-			err = postcomment.PullRequestReview(data.Pull.OwnerName, data.Pull.RepoName, data.Pull.Sha, data.Pull.Number, result)
+			err = postcomment.PullRequestReview("aMMokschaf", "yamls", data.Pull.Sha, data.Pull.Number, result, client)
 		}
 		if err != nil {
 			return err

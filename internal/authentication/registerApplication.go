@@ -1,4 +1,4 @@
-//authentication is responsible for registering KubeLinterBot to a github-Repository.
+//Package authentication is responsible for registering KubeLinterBot to a github-Repository.
 //It also handles functions related to the oauth-token like serializing it or reading it again.
 package authentication
 
@@ -7,11 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	githuboauth "golang.org/x/oauth2/github"
+
+	"main/internal/config"
 )
 
 var (
@@ -29,8 +31,10 @@ var (
 	oauthStateString = "thisshouldberandom"
 )
 
+//TODO struct
 var s http.Server
-var waitGroup *sync.WaitGroup
+
+//var waitGroup *sync.WaitGroup
 
 const htmlIndex = `<html><body>
 Logged in with <a href="/login">GitHub</a>
@@ -39,14 +43,16 @@ Logged in with <a href="/login">GitHub</a>
 
 //RunAuth is called if KubeLinterBot is not authorized. After authorization,
 //KubeLinterBots main-server starts.
-func RunAuth(wg *sync.WaitGroup) {
-	waitGroup = wg
+func RunAuth(cfg config.Config) { //wg *sync.WaitGroup) {
+	//waitGroup = wg
 	m := http.NewServeMux()
 	s := &http.Server{Addr: ":7000", Handler: m}
 	m.HandleFunc("/", handleMain)
 	m.HandleFunc("/login", handleGitHubLogin)
 	m.HandleFunc("/github_oauth_cb", handleGitHubCallback)
-	m.HandleFunc("/shutdown", handleShutdown)
+	m.HandleFunc("/shutdown", func(w http.ResponseWriter, req *http.Request) {
+		handleShutdown(w, req) //, wg)
+	})
 	fmt.Print("Started running on http://127.0.0.1:7000\n")
 	fmt.Println(s.ListenAndServe())
 }
@@ -89,7 +95,12 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	jsonToken, err = tokenToJSON(token)
+
+	jsonToken, err := tokenToJSON(token)
+	cfg := config.OptionParser()
+	cfg.User.AccessToken = jsonToken
+	config.WriteOptionsToFile(cfg)
+
 	//fmt.Println(token, jsonToken)
 	if err != nil {
 		fmt.Println("Problem with serializing token to JSON:", err)
@@ -100,15 +111,15 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 //handleShutdown is the handler for /shutdown.
-func handleShutdown(w http.ResponseWriter, r *http.Request) {
-	waitGroup.Done()
+func handleShutdown(w http.ResponseWriter, r *http.Request) { //, wg *sync.WaitGroup) {
+	//wg.Done()
 	s.Shutdown(context.Background())
 }
 
 //tokenToJSON converts a oauth2.Token to a JSON-String
 func tokenToJSON(token *oauth2.Token) (string, error) {
 	if d, err := json.Marshal(token); err != nil {
-		return "", err
+		return "", errors.Wrap(err, "marshaling token as JSON")
 	} else {
 		return string(d), nil
 	}

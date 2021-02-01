@@ -2,33 +2,29 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"main/internal/authentication"
+	"main/internal/config"
+	"main/internal/server"
 	"os"
-	"sync"
 )
 
 //main sets up a logger, a webHookServer, prints the address and port, starts the server
 func main() {
-	cfg = optionParser()
-	var wg sync.WaitGroup
+	//TODO argument for config file
+	cfg := config.OptionParser()
+	//var wg sync.WaitGroup
 	//TODO: implement check if token is actually valid, not just "empty"
-	if cfg.Repositories[0].AccessToken == "empty" {
-		wg.Add(1)
-		go authentication.RunAuth(&wg)
-		wg.Wait()
-		cfg.Repositories[0].AccessToken = authentication.GetFullToken()
-		status := writeOptionsToFile()
-		if status == false {
-			fmt.Println("Could not update configuration.")
-		}
-		if status == true {
-			fmt.Println("Configuration updated.")
-		}
+	if cfg.User.AccessToken == "empty" {
+		//wg.Add(1)
+		/*go*/
+		authentication.RunAuth(cfg) //&wg)
+		//wg.Wait()
+		//authObj := authentication.CreateClient()
+		cfg = config.OptionParser()
 	}
 	logger := log.New(os.Stdout, "", 0)
-	webHookServ := setupServer(logger, cfg.Bot.Port)
+	webHookServ := server.SetupServer(logger, cfg)
 	logger.Printf("KubeLinterBot is listening on http://localhost%s\n", webHookServ.Addr) //TODO: Address
 	webHookServ.ListenAndServe()
 }

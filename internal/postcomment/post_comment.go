@@ -11,12 +11,12 @@ import (
 )
 
 //Push authorizes with github to post KubeLinter's results to the commit.
-func Push(username string, reponame string, commitSha string, result []byte) error {
-	githubClient := authentication.GetGithubClient()
+func Push(username string, reponame string, commitSha string, result []byte, client *authentication.Client) error {
+	//githubClient := authentication.GetGithubClient()
 
 	var bdy string = string(result)
 	comment := github.RepositoryComment{Body: &bdy}
-	_, _, err := githubClient.Repositories.CreateComment(oauth2.NoContext, username, reponame, commitSha, &comment)
+	_, _, err := client.GithubClient.Repositories.CreateComment(oauth2.NoContext, username, reponame, commitSha, &comment)
 	if err != nil {
 		fmt.Println("Posting Kubelinter's comment failed, error:", err)
 		return err
@@ -27,10 +27,10 @@ func Push(username string, reponame string, commitSha string, result []byte) err
 }
 
 //PullRequestReview TODO blabla
-func PullRequestReview(username string, reponame string, commitSha string, number int64, result []byte) error {
+func PullRequestReview(username string, reponame string, commitSha string, number int64, result []byte, client *authentication.Client) error {
 	fmt.Println("postpullRequestReviewWithComment method")
 	fmt.Println(username, reponame, commitSha, string(result))
-	githubClient := authentication.GetGithubClient()
+	//githubClient := authentication.GetGithubClient()
 
 	//Kommentar erstellen mit REQUEST CHANGES DraftReviewComment
 
@@ -55,7 +55,12 @@ func PullRequestReview(username string, reponame string, commitSha string, numbe
 
 	//var review2 = github.PullRequestReviewRequest{CommitID: &commitIDString, Body: &commentBody, Event: &stringEvent, Comments: comments}
 	// fmt.Println(review)
-	var review = github.PullRequestReviewRequest{} //{Body: &commentBody, Event: &stringEvent}
+	body := "Ja das ist hier!"
+	event := "COMMENT"
+	var review = github.PullRequestReviewRequest{
+		Body:  &body,
+		Event: &event,
+	} //{Body: &commentBody, Event: &stringEvent}
 
 	// u := fmt.Sprintf("repos/%v/%v/pulls/%d/comments", "aMMokschaf", "yamls", 39)
 
@@ -72,15 +77,15 @@ func PullRequestReview(username string, reponame string, commitSha string, numbe
 	// 	return err
 	//}
 
-	re, resp, err := githubClient.PullRequests.CreateReview(context.Background(), username, reponame, int(number), &review)
+	re, resp, err := client.GithubClient.PullRequests.CreateReview(context.Background(), username, reponame, int(number), &review)
 	fmt.Println("create review re", re, "\nresp", resp, "\nerr", err)
 
 	review2 := github.PullRequestReviewRequest{}
 
 	review2.Body = &commentBody
 	review2.Event = &stringEvent
-	re, resp, err = githubClient.PullRequests.SubmitReview(context.Background(), username, reponame, int(number), re.GetID(), &review2)
-	fmt.Println("create review re", re, "\nresp", resp, "\nerr", err)
+	re, resp, err = client.GithubClient.PullRequests.SubmitReview(context.Background(), username, reponame, int(number), re.GetID(), &review2)
+	fmt.Println("submit review re", re, "\nresp", resp, "\nerr", err)
 	return nil
 }
 

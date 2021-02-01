@@ -2,11 +2,12 @@ package getcommit
 
 import (
 	"fmt"
+	"main/internal/authentication"
 	"main/internal/parsehook"
 )
 
 //GetCommit TODO Kommentar
-func GetCommit(result parsehook.ParseResult) {
+func GetCommit(result *parsehook.ParseResult, client authentication.Client) {
 
 	fmt.Println("GetCommit")
 	var ownername string
@@ -37,5 +38,5 @@ func GetCommit(result parsehook.ParseResult) {
 		branchRef = result.Pull.Branch
 	}
 
-	DownloadCommit(ownername, reponame, commitSha, branchRef)
+	DownloadCommit(ownername, reponame, commitSha, branchRef, client)
 }
