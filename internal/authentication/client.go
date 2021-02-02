@@ -59,7 +59,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 //CreateClient creates and returns the Client-Object needed to login to github.
 func CreateClient(token string) *Client {
 	var c Client
-	c.personalAccessToken = extractTokenStringFromJSONToken(token)
+	c.personalAccessToken = extractTokenStringFromJSONToken(token) //"7e65e53df54c8383a7c4896a254ed78201faf64a"
 
 	tokenSource := &TokenSource{
 		AccessToken: c.personalAccessToken,
@@ -81,7 +81,11 @@ func extractTokenStringFromJSONToken(completeToken string) string {
 	var tokenStruct jsonTokenStruct
 	json.Unmarshal([]byte(completeToken), &tokenStruct)
 	var tokenString string = tokenStruct.Access_token
-	return tokenString
+	if tokenString == "" {
+		return completeToken
+	} else {
+		return tokenString
+	}
 }
 
 // type loggingRoundTripper struct{}

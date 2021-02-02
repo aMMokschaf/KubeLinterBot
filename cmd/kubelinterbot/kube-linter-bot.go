@@ -18,11 +18,12 @@ func main() {
 	cfg, err := config.OptionParser()
 	if err != nil {
 		fmt.Println("Could not read configuration-file. Please copy the file './samples/kube-linter-bot-configuration.yaml' to kube-linter-bots directory.")
+		os.Exit(-1)
 	}
 
 	err = callkubelinter.CheckForKubeLinterBinary()
 	if err != nil {
-		//TODO exit server?
+		os.Exit(-1)
 	}
 	//var wg sync.WaitGroup
 	//TODO: implement check if token is actually valid, not just "empty"
