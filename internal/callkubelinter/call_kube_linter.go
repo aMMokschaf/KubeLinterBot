@@ -26,7 +26,7 @@ func CheckForKubeLinterBinary() error {
 	f, err := os.Open("./kubelinter/kube-linter")
 	defer f.Close()
 	if err != nil {
-		fmt.Println("Could not find KubeLinter.", err)
+		fmt.Println("Could not find KubeLinter. Please download the latest release: https://github.com/stackrox/kube-linter/releases", err)
 		return err
 	} else {
 		fmt.Println("KubeLinter found.")
@@ -34,10 +34,9 @@ func CheckForKubeLinterBinary() error {
 	}
 }
 
-//export after implementation
+//export after implementation. Security issues? Maybe only check for new version, no download.
 func checkForKubeLinterUpdate() {
 	//get KubeLinter-Version
 	//compare to latest release
 	//update: automatically? How to make sure that linting is not affected?
-
 }
