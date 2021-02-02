@@ -13,21 +13,17 @@ import (
 
 type analysisEngine struct{}
 
+//GetEngine returns the analysisEngine-Object.
 func GetEngine() *analysisEngine {
 	var ae analysisEngine
 	return &ae
 }
 
+//Analyse starts the processing of the payload of an incoming webhook.
 func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) error {
-	//fmt.Println("test")
-	// var added []string
-	// var modified []string
 	var commitSha string
 	var token string = cfg.User.AccessToken
-	client := authentication.CreateClient(token) //TODO
-
-	// var ownerName = cfg.Repositories[0].Owner
-	// var repoName = cfg.Repositories[0].Name
+	client := authentication.CreateClient(token)
 
 	result, err := parsehook.ParseHook(r, cfg.Repositories[0].Webhook.Secret, client)
 	if err != nil {
@@ -36,6 +32,7 @@ func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) error {
 	}
 	if result == nil {
 		fmt.Println("Hook is of no interest to KubeLinterBot.\n KubeLinterBot is listening for Webhooks...")
+		return nil
 	} else {
 		commitSha = result.Sha
 		getcommit.GetCommit(result, *client)

@@ -8,6 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+//Config is the representation of kube-linter-bot-configuration.yaml as a struct.
 type Config struct {
 	User struct {
 		Username    string `yaml:"username"`
@@ -26,14 +27,6 @@ type Config struct {
 		} `yaml:"webhook"`
 	} `yaml:"repositories"`
 }
-
-// func (c *Config) GetConfig() Config {
-// 	return *c
-// }
-
-// func (c *Config) SetConfig(newConf Config) {
-// 	c = &newConf
-// }
 
 //OptionParser reads a config-file named "kube-linter-bot-configuration.yaml", that has
 //to be located in the same folder as kube-linter-bot and parses its contents to a struct.

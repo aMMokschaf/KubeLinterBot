@@ -23,12 +23,12 @@ var (
 	oauthConf = &oauth2.Config{
 		ClientID:     "c1aa344cbfeccc829f5e",
 		ClientSecret: "146f4df2e4c12117156472d7620270281425b58b",
-		// select level of access you want https://developer.github.com/v3/oauth/#scopes
+		// select level of access you want, refer to: https://developer.github.com/v3/oauth/#scopes
 		Scopes:   []string{"user:email", "repo"},
 		Endpoint: githuboauth.Endpoint,
 	}
 	// random string for oauth2 API calls to protect against CSRF
-	oauthStateString = "thisshouldberandom"
+	oauthStateString = "thisshouldberandom" //TODO generate random string
 )
 
 //TODO struct
@@ -41,8 +41,7 @@ Logging in with <a href="/login">GitHub</a>
 </body></html>
 `
 
-//RunAuth is called if KubeLinterBot is not authorized. After authorization,
-//KubeLinterBots main-server starts.
+//RunAuth is called if KubeLinterBot is not authorized.
 func RunAuth(cfg config.Config) { //wg *sync.WaitGroup) {
 	//waitGroup = wg
 	m := http.NewServeMux()
@@ -70,7 +69,7 @@ func handleGitHubLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-// /github_oauth_cb. Called by github after authorization is granted
+// /github_oauth_cb. Called by github after authorization is granted.
 func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
 	if state != oauthStateString {
@@ -116,7 +115,7 @@ func handleShutdown(w http.ResponseWriter, r *http.Request) { //, wg *sync.WaitG
 	s.Shutdown(context.Background())
 }
 
-//tokenToJSON converts a oauth2.Token to a JSON-String
+//tokenToJSON converts a oauth2.Token to a JSON-String.
 func tokenToJSON(token *oauth2.Token) (string, error) {
 	if d, err := json.Marshal(token); err != nil {
 		return "", errors.Wrap(err, "marshaling token as JSON")
@@ -125,7 +124,7 @@ func tokenToJSON(token *oauth2.Token) (string, error) {
 	}
 }
 
-//tokenFromJSON parses a JSON-string to a oauth2.Token
+//tokenFromJSON parses a JSON-string to a oauth2.Token.
 func tokenFromJSON(jsonStr string) (*oauth2.Token, error) {
 	var token oauth2.Token
 	if err := json.Unmarshal([]byte(jsonStr), &token); err != nil {

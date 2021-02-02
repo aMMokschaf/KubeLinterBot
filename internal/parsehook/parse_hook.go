@@ -12,6 +12,8 @@ import (
 	githubWebhook "gopkg.in/go-playground/webhooks.v5/github"
 )
 
+//GeneralizedResult is a representation of the fields of push- and pull-payloads that are
+//interesting for KLB.
 type GeneralizedResult struct {
 	UserName      string
 	OwnerName     string
@@ -62,39 +64,6 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *auth
 		}
 	}
 	return nil, nil
-	// var result PullResult
-	// if payload.Action == "opened" ||
-	// 	payload.Action == "edited" ||
-	// 	payload.Action == "reopened" ||
-	// 	payload.Action == "synchronized" {
-
-	// 	result.UserName = payload.PullRequest.User.Login
-	// 	result.OwnerName = payload.PullRequest.Head.Repo.Owner.Login
-	// 	result.RepoName = payload.PullRequest.Head.Repo.Name
-	// 	result.Branch = payload.PullRequest.Head.Ref
-	// 	result.Sha = payload.PullRequest.Head.Sha
-	// 	result.Number = payload.Number
-
-	// 	//client wird von oben durchgereicht
-	// 	//var ghClient := authentication.CreateClient()
-	// 	//githubClient := authentication.GetGithubClient()
-
-	// 	var options = github.ListOptions{}
-
-	// 	files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Head.Repo.Owner.Login, payload.Repository.Name, int(payload.Number), &options)
-	// 	if err != nil {
-	// 		fmt.Println("Error while getting filenames:\n", err, "\n", response)
-	// 		return nil, err
-	// 	}
-
-	// 	for _, file := range files {
-	// 		if strings.Contains(*file.Filename, ".yml") || strings.Contains(*file.Filename, "yaml") {
-	// 			fmt.Println("Found modified or added yamls in PullRequest.")
-	// 			return &result, nil
-	// 		}
-	// 	}
-	// }
-	// return nil, nil
 }
 
 //parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
@@ -125,23 +94,6 @@ func parseHookPush(payload githubWebhook.PushPayload, client *authentication.Cli
 
 		return &result, nil
 	}
-	// var result = PushResult{}
-	// result.ModifiedFiles = lookForYamlInArray(payload.HeadCommit.Modified)
-	// result.AddedFiles = lookForYamlInArray(payload.HeadCommit.Added)
-	// if len(result.ModifiedFiles) == 0 && len(result.AddedFiles) == 0 {
-	// 	return nil, nil
-	// } else {
-	// 	commitSha := payload.HeadCommit.ID
-	// 	branchRef := *&payload.Ref
-
-	// 	result.RepoName = payload.Repository.Name
-	// 	result.OwnerName = payload.Repository.Owner.Login
-	// 	result.UserName = payload.Pusher.Name
-	// 	result.Sha = commitSha
-	// 	result.Branch = branchRef
-
-	// 	return &result, nil
-	// }
 }
 
 //lookForYamlInArray looks for .yaml or .yml-files, adds them to a string-array and returns it.
@@ -174,41 +126,28 @@ func ParseHook(r *http.Request, secret string, client *authentication.Client) (*
 		return nil, err
 	}
 
-	// var pushRes *PushResult
-	//var pullRes *PullResult
-
-	//var result ParseResult
 	var result *GeneralizedResult
-	//result.Event = "none"
 
 	switch payload.(type) {
 
 	case githubWebhook.PushPayload:
-		fmt.Println("Receiving Push-Payload:")
+		fmt.Println("Receiving Push-Payload.")
 		commit := payload.(githubWebhook.PushPayload)
 		result, err = parseHookPush(commit, client)
 		if err != nil {
 			return nil, err
 		}
-		//result.Push = pushRes
 		result.Number = 0 //0 meaning push. If pull-request, this is a non-negative non-zero number.
 
 	case githubWebhook.PullRequestPayload:
-		fmt.Println("Receiving Pull-Request-Payload:")
+		fmt.Println("Receiving Pull-Request-Payload.")
 		pullRequest := payload.(githubWebhook.PullRequestPayload)
 		result, err = parseHookPullRequest(pullRequest, client)
 		if err != nil {
 			return nil, err
 		}
-		// result.Pull = pullRes
-		// result.Event = "pull"
-		// if result.Pull.Sha == "" {
-		// 	result.Event = "none"
-		// }
 	}
 
-	//result.Push = pushRes
-	//result.Pull = pullRes
-	fmt.Println("ParseResult:", result)
+	//fmt.Println("ParseResult:", result)
 	return result, nil
 }

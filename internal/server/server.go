@@ -12,7 +12,7 @@ import (
 	"main/internal/engine"
 )
 
-//setupServer sets up the http-server.
+//SetupServer sets up the http-server.
 func SetupServer(logger *log.Logger, cfg config.Config) *http.Server {
 	return &http.Server{
 		Addr:    ":" + strconv.Itoa(cfg.Bot.Port),

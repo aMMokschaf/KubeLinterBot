@@ -4,9 +4,10 @@ package tests
 import (
 	"fmt"
 	"io"
-	"main/internal/handleresult"
 	"os"
 	"testing"
+
+	"main/internal/handleresult"
 )
 
 /*TestRemoveDownloadedFiles creates:

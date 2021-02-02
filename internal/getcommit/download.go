@@ -14,20 +14,13 @@ import (
 
 const mainDir = "./downloadedYaml/"
 
-//DownloadCommit authenticates with oauth and downloads all folders with .yaml or .yml-files.
+//DownloadCommit downloads all .yaml or .yml-files.
 //These are then passed to the KubeLinter-binary.
 func DownloadCommit(ownername string, reponame string, commitSha string, branch string, filenames []string, number int, client authentication.Client) ([]*github.RepositoryContent, error) {
-	fmt.Println("DownloadCommit")
-	fmt.Println(ownername, reponame, commitSha, branch, filenames, number, client)
-	// repoContent, err := downloadFolder(ownername, reponame, "", commitSha, branch, client.GithubClient)
-	// if err != nil {
-	// 	return nil, err
-	// }
 	err2 := download(ownername, reponame, "", commitSha, branch, filenames, number, client)
 	if err2 != nil {
 		return nil, err2
 	}
-	// return repoContent, err
 	return nil, nil
 }
 
@@ -42,12 +35,6 @@ func download(ownername string, reponame string, subpath string, commitSha strin
 	}
 	fmt.Println("Downloaddir:", downloadDir)
 
-	// err := os.Mkdirall(downloadDir, 0755) //TODO check permissions
-	// if err != nil {
-	// 	return err
-	// }
-
-	//branchRef statt _
 	branchRef, _, err := client.GithubClient.Repositories.GetBranch(context.Background(), ownername, reponame, branch)
 	if err != nil {
 		fmt.Println("getbranch", err)
@@ -59,7 +46,7 @@ func download(ownername string, reponame string, subpath string, commitSha strin
 		f, err := client.GithubClient.Repositories.DownloadContents(context.Background(), ownername, reponame, file, &options)
 		if err != nil {
 			fmt.Println("Error downloadcontents", err)
-			//do something
+			return nil
 		} else {
 			err := downloadSingleFile(f, downloadDir, file)
 			if err != nil {
@@ -67,39 +54,35 @@ func download(ownername string, reponame string, subpath string, commitSha strin
 			}
 		}
 	}
-
 	return nil
 }
 
 func downloadSingleFile(data io.ReadCloser, downloadDir string, filename string) error {
 	fmt.Println("Downloading file:", filename)
+
 	re := regexp.MustCompile(".*/")
 	path := re.FindStringSubmatch(filename)
-	fmt.Println(path)
+
 	if len(path) == 0 {
 		err := os.MkdirAll(downloadDir, 0755)
 		if err != nil {
-			fmt.Println("Error while os.MkDirall()", err)
 			return err
 		}
 	} else {
 		err := os.MkdirAll(downloadDir+path[0], 0755)
 		if err != nil {
-			fmt.Println("Error while os.MkDirall()", err)
 			return err
 		}
 	}
 
 	out, err := os.Create(downloadDir + filename)
 	if err != nil {
-		fmt.Println("Error while os.Create()", err)
 		return err
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, data)
 	if err != nil {
-		fmt.Println("Error while io.Copy()", err)
 		return err
 	}
 	return nil

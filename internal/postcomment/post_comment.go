@@ -26,8 +26,6 @@ func Push(username string, reponame string, commitSha string, result []byte, cli
 
 //PullRequestReview TODO blabla
 func PullRequestReview(username string, reponame string, commitSha string, number int, files []string, result []byte, client *authentication.Client) error {
-	// fmt.Println("postpullRequestReviewWithComment method")
-	// fmt.Println(username, reponame, commitSha, number, files, string(result), client)
 	var comments []*github.DraftReviewComment
 	for _, file := range files {
 		var commentPath = file
@@ -40,7 +38,6 @@ func PullRequestReview(username string, reponame string, commitSha string, numbe
 		comment.Body = &commentBody
 
 		comments = append(comments, &comment)
-		// fmt.Println("New comment built:", comment)
 	}
 
 	body := "KubeLinter has found possible security- or production-readiness-errors. Please check the comments made by KubeLinterBot for each file."

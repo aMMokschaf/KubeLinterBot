@@ -27,7 +27,6 @@ func main() {
 		/*go*/
 		authentication.RunAuth(cfg) //&wg)
 		//wg.Wait()
-		//authObj := authentication.CreateClient()
 		cfg = config.OptionParser()
 	}
 	logger := log.New(os.Stdout, "", 0)

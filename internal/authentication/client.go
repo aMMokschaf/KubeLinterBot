@@ -12,7 +12,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-//TODO rename this
+//Client lets KLB login to github.
 type Client struct {
 	jsonToken           string
 	personalAccessToken string
@@ -25,11 +25,12 @@ func (ao *Client) GetToken() string {
 	return ao.personalAccessToken
 }
 
-//GetToken returns the access-token as a JSON-string, with bearer and expiry.
+//GetJSONToken returns the access-token as a JSON-string, with bearer and expiry.
 func (ao *Client) GetJSONToken() string {
 	return ao.jsonToken
 }
 
+//SetJSONToken sets the access-token as a JSON-string, with bearer and expiry.
 func (ao *Client) SetJSONToken(token string) {
 	ao.jsonToken = token
 }
@@ -42,12 +43,12 @@ func (ao *Client) getOAuthClient() *http.Client {
 	return ao.oauthClient
 }
 
-//TokenSource
+//TokenSource must be implemented for oauth.
 type TokenSource struct {
 	AccessToken string
 }
 
-//Token
+//Token must be implemented for oauth.
 func (t *TokenSource) Token() (*oauth2.Token, error) {
 	token := &oauth2.Token{
 		AccessToken: t.AccessToken,
@@ -55,7 +56,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
-//CreateClient creates and returns the authObject needed to login to github.
+//CreateClient creates and returns the Client-Object needed to login to github.
 func CreateClient(token string) *Client {
 	var c Client
 	c.personalAccessToken = extractTokenStringFromJSONToken(token)
@@ -76,7 +77,6 @@ type jsonTokenStruct struct {
 	Expiry       string
 }
 
-//extractTokenStringFromJSONToken extracts the access_token-String from the complete token.
 func extractTokenStringFromJSONToken(completeToken string) string {
 	var tokenStruct jsonTokenStruct
 	json.Unmarshal([]byte(completeToken), &tokenStruct)
