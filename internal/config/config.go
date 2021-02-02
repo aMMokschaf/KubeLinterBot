@@ -31,14 +31,15 @@ type Config struct {
 //OptionParser reads a config-file named "kube-linter-bot-configuration.yaml", that has
 //to be located in the same folder as kube-linter-bot and parses its contents to a struct.
 //A sample file is located in /samples/
-func OptionParser() Config {
+func OptionParser() (*Config, error) {
 	var cfg Config
 	dat, err := ioutil.ReadFile("kube-linter-bot-configuration.yaml")
 	if err != nil {
-		panic(err)
+		//panic(err)
+		return nil, err
 	}
 	yaml.Unmarshal([]byte(dat), &cfg)
-	return cfg
+	return &cfg, nil
 }
 
 //WriteOptionsToFile saves changes to the configuration to kube-linter-bot-configuration.yaml.

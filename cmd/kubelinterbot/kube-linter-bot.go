@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"main/internal/authentication"
 	"main/internal/callkubelinter"
@@ -14,9 +15,12 @@ import (
 func main() {
 	//TODO argument for config file
 	//TODO check if cfg-file exists
-	cfg := config.OptionParser()
+	cfg, err := config.OptionParser()
+	if err != nil {
+		fmt.Println("Could not read configuration-file. Please copy the file './samples/kube-linter-bot-configuration.yaml' to kube-linter-bots directory.")
+	}
 
-	err := callkubelinter.CheckForKubeLinterBinary()
+	err = callkubelinter.CheckForKubeLinterBinary()
 	if err != nil {
 		//TODO exit server?
 	}
@@ -25,12 +29,15 @@ func main() {
 	if cfg.User.AccessToken == "empty" {
 		//wg.Add(1)
 		/*go*/
-		authentication.RunAuth(cfg) //&wg)
+		authentication.RunAuth(*cfg) //&wg)
 		//wg.Wait()
-		cfg = config.OptionParser()
+		cfg, err = config.OptionParser()
+		if err != nil {
+			fmt.Println("Could not read configuration-file. Please copy the file './samples/kube-linter-bot-configuration.yaml' to kube-linter-bots directory.")
+		}
 	}
 	logger := log.New(os.Stdout, "", 0)
-	webHookServ := server.SetupServer(logger, cfg)
+	webHookServ := server.SetupServer(logger, *cfg)
 	logger.Printf("KubeLinterBot is listening on http://localhost%s\n", webHookServ.Addr) //TODO: Address
 	webHookServ.ListenAndServe()
 }

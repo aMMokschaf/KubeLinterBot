@@ -96,14 +96,19 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonToken, err := tokenToJSON(token)
-	cfg := config.OptionParser()
-	cfg.User.AccessToken = jsonToken
-	config.WriteOptionsToFile(cfg)
-
-	//fmt.Println(token, jsonToken)
 	if err != nil {
 		fmt.Println("Problem with serializing token to JSON:", err)
 	}
+
+	cfg, err := config.OptionParser()
+	if err != nil {
+		panic(err)
+	}
+	cfg.User.AccessToken = jsonToken
+	config.WriteOptionsToFile(*cfg)
+
+	//fmt.Println(token, jsonToken)
+
 	fmt.Printf("Logged in as GitHub user: %s\n", *user.Login)
 	//fmt.Println("TOKEN:", jsonToken)
 	http.Redirect(w, r, "/shutdown", http.StatusTemporaryRedirect)
