@@ -9,9 +9,9 @@ Generate a safe secret and add it as _webhook.secret_. You will need this later 
 
 Generate a personal access token here: https://github.com/settings/tokens.
 You will need to check the following options:
->1.repo: If you want to lint private repositories, check _repo_. If you only want to lint public repositories, check public_repo
->2.admin:repo_hook: If you want your webhook installed automatically, check this. (Not yet implemented)
->3 Click "Generate token". Github will display it right away. Copy said token to _user.accessToken_. If you don't want to generate a token now and your server has a browser you can use, you can do step 3.1 instead.
+>1. repo: If you want to lint private repositories, check _repo_. If you only want to lint public repositories, check public_repo
+>2. admin:repo_hook: If you want your webhook installed automatically, check this. (Not yet implemented)
+>3. Click "Generate token". Github will display it right away. Copy said token to _user.accessToken_. If you don't want to generate a token now and your server has a browser you can use, you can do step 3.1 instead.
 
 2. Run **make build** in /KubeLinterBot/
 3. Run **./kube-linter-bot**
