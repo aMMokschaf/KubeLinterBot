@@ -1,5 +1,5 @@
-//Package main reads config files, and contains the hook-receiving server.
-package main
+//Package config reads and writes config-files.
+package config
 
 import (
 	"io/ioutil"
@@ -8,35 +8,38 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type config struct {
+type Config struct {
 	User struct {
-		Username string `yaml:"username"`
+		Username    string `yaml:"username"`
+		AccessToken string `yaml:"accessToken"`
 	}
 	Bot struct {
 		Port int `yaml:"port"`
 	}
 	Repositories []struct {
-		Name        string `yaml:"name"`
-		AccessToken string `yaml:"accessToken"`
-		Owner       string `yaml:"owner"`
-		Webhook     struct {
+		Name    string `yaml:"name"`
+		Owner   string `yaml:"owner"`
+		Webhook struct {
 			Secret  string   `yaml:"secret"`
 			Events  []string `yaml:"events"`
 			Address string   `yaml:"address"`
-		} `yaml:"repositories"`
-	}
+		} `yaml:"webhook"`
+	} `yaml:"repositories"`
 }
 
-var cfg config
+// func (c *Config) GetConfig() Config {
+// 	return *c
+// }
 
-func GetConfig() config {
-	return cfg
-}
+// func (c *Config) SetConfig(newConf Config) {
+// 	c = &newConf
+// }
 
-//optionParser reads a config-file named "kube-linter-bot-configuration.yaml", that has
+//OptionParser reads a config-file named "kube-linter-bot-configuration.yaml", that has
 //to be located in the same folder as kube-linter-bot and parses its contents to a struct.
 //A sample file is located in /samples/
-func optionParser() config {
+func OptionParser() Config {
+	var cfg Config
 	dat, err := ioutil.ReadFile("kube-linter-bot-configuration.yaml")
 	if err != nil {
 		panic(err)
@@ -45,10 +48,8 @@ func optionParser() config {
 	return cfg
 }
 
-//writeOptionsToFile saves changes to the configuration to kube-linter-bot-configuration.yaml.
-func writeOptionsToFile() bool {
-	status := false
-
+//WriteOptionsToFile saves changes to the configuration to kube-linter-bot-configuration.yaml.
+func WriteOptionsToFile(cfg Config) error {
 	d, err := yaml.Marshal(cfg)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -57,8 +58,6 @@ func writeOptionsToFile() bool {
 	err = ioutil.WriteFile("./kube-linter-bot-configuration.yaml", d, 0666) //TODO: Check permissions
 	if err != nil {
 		panic(err)
-	} else {
-		status = true
 	}
-	return status
+	return err
 }

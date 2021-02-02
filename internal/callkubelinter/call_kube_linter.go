@@ -9,7 +9,6 @@ import (
 
 //CallKubelinter calls the kube-linter binary in kubelinter/-folder.
 func CallKubelinter() ([]byte, error) {
-	checkForKubeLinterBinary()
 	//TODO: Change folder?
 	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/")
 	out, err := cmd.CombinedOutput()
@@ -22,15 +21,17 @@ func CallKubelinter() ([]byte, error) {
 	return out, err
 }
 
-//export und woanders aufrufen
-func checkForKubeLinterBinary() {
+//CheckForKubeLinterBinary checks if a Kubelinter-binary exists in /Kubelinterbot/kubelinter/.
+func CheckForKubeLinterBinary() error {
 	f, err := os.Open("./kubelinter/kube-linter")
+	defer f.Close()
 	if err != nil {
 		fmt.Println("Could not find KubeLinter.", err)
+		return err
 	} else {
 		fmt.Println("KubeLinter found.")
+		return nil
 	}
-	defer f.Close()
 }
 
 //export after implementation
