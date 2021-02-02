@@ -37,7 +37,7 @@ var s http.Server
 //var waitGroup *sync.WaitGroup
 
 const htmlIndex = `<html><body>
-Logged in with <a href="/login">GitHub</a>
+Logging in with <a href="/login">GitHub</a>
 </body></html>
 `
 

@@ -25,6 +25,8 @@ type GeneralizedResult struct {
 
 //parseHookPullRequest gets a githubWebhook.PullRequestPayload and checks for .yml and .yaml-files
 func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *authentication.Client) (*GeneralizedResult, error) { //TODO sollte Pointer zurückgeben, damit nil returnt werden kann
+	fmt.Println("parse hook pull")
+	fmt.Println(payload)
 	var result GeneralizedResult
 	if payload.Action == "opened" ||
 		payload.Action == "edited" ||
@@ -92,10 +94,13 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *auth
 //parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
 //and the commitSha that are parsed from the payload.
 func parseHookPush(payload githubWebhook.PushPayload, client *authentication.Client) (*GeneralizedResult, error) {
+	fmt.Println("parse hook push")
+	fmt.Println(payload)
 	var result = GeneralizedResult{}
 
 	result.AddedOrModifiedFiles = lookForYamlInArray(payload.HeadCommit.Added)
 	modifiedFiles := lookForYamlInArray(payload.HeadCommit.Modified)
+
 	for _, file := range modifiedFiles {
 		result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, file)
 	}

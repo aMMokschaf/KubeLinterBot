@@ -5,6 +5,7 @@ package authentication
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/google/go-github/github"
@@ -65,7 +66,7 @@ func CreateClient(token string) *Client {
 
 	c.oauthClient = oauth2.NewClient(context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{ /*Transport: loggingRoundTripper{}*/ }), tokenSource)
 	c.GithubClient = github.NewClient(c.oauthClient)
-
+	fmt.Println("Client:", c)
 	return &c
 }
 
