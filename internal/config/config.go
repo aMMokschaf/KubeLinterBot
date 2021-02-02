@@ -38,7 +38,10 @@ func OptionParser() (*Config, error) {
 		//panic(err)
 		return nil, err
 	}
-	yaml.Unmarshal([]byte(dat), &cfg)
+	err = yaml.Unmarshal([]byte(dat), &cfg)
+	if err != nil {
+		return nil, err
+	}
 	return &cfg, nil
 }
 
