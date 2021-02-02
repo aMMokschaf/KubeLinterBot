@@ -59,9 +59,9 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *auth
 		for _, file := range files {
 			if strings.Contains(*file.Filename, ".yml") || strings.Contains(*file.Filename, "yaml") {
 				result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, *file.Filename)
-				return &result, nil
 			}
 		}
+		return &result, nil
 	}
 	return nil, nil
 }

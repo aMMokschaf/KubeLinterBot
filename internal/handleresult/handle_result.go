@@ -13,7 +13,7 @@ import (
 
 //Handle calls removeDownloadedFiles after linting. After this, it passes kubelinters exit-code back.
 func Handle(data *parsehook.GeneralizedResult, result []byte, status error, dir string, client *authentication.Client) error {
-	err := RemoveDownloadedFiles("./downloadedYaml/"+dir+"/", 0)
+	err := RemoveDownloadedFiles("./downloadedYaml/"+dir+"/", 1)
 	if err != nil {
 		fmt.Println("Error while removing files:\n", err)
 	} else {
