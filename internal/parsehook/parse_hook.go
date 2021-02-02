@@ -13,12 +13,14 @@ import (
 )
 
 type GeneralizedResult struct {
-	UserName  string
-	OwnerName string
-	RepoName  string
-	Sha       string
-	Branch    string
-	Number    int
+	UserName      string
+	OwnerName     string
+	RepoName      string
+	BaseOwnerName string
+	BaseRepoName  string
+	Sha           string
+	Branch        string
+	Number        int
 
 	AddedOrModifiedFiles []string
 }
@@ -33,16 +35,20 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *auth
 		payload.Action == "reopened" ||
 		payload.Action == "synchronized" {
 
+		//head are changes, base is "old"
 		result.UserName = payload.PullRequest.User.Login
 		result.OwnerName = payload.PullRequest.Head.Repo.Owner.Login
 		result.RepoName = payload.PullRequest.Head.Repo.Name
+		result.BaseOwnerName = payload.PullRequest.Base.Repo.Owner.Login
+		result.BaseRepoName = payload.PullRequest.Base.Repo.Name
 		result.Branch = payload.PullRequest.Head.Ref
 		result.Sha = payload.PullRequest.Head.Sha
 		result.Number = int(payload.Number)
 
 		var options = github.ListOptions{}
 
-		files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Head.Repo.Owner.Login, payload.Repository.Name, int(payload.Number), &options)
+		//TODO change parameters to above
+		files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Base.Repo.Owner.Login, payload.Repository.Name, int(payload.Number), &options)
 		if err != nil {
 			fmt.Println("Error while getting filenames:\n", err, "\n", response)
 			return nil, err

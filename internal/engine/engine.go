@@ -38,16 +38,10 @@ func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) error {
 		fmt.Println("Hook is of no interest to KubeLinterBot.\n KubeLinterBot is listening for Webhooks...")
 	} else {
 		commitSha = result.Sha
+		getcommit.GetCommit(result, *client)
 
-		//fmt.Println("ParseResult:", result)
-		if result != nil {
-			getcommit.GetCommit(result, *client)
-
-			var lintResult, exitCode = callkubelinter.CallKubelinter()
-			handleresult.Handle(result, lintResult, exitCode, commitSha, client)
-		} else {
-			fmt.Println("No need to lint, as no .yml or .yaml were changed.\nKubeLinterBot is listening for Webhooks...")
-		}
+		var lintResult, exitCode = callkubelinter.CallKubelinter()
+		handleresult.Handle(result, lintResult, exitCode, commitSha, client)
 	}
 	return nil
 }

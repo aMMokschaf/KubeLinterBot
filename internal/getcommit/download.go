@@ -75,12 +75,19 @@ func downloadSingleFile(data io.ReadCloser, downloadDir string, filename string)
 	fmt.Println("Downloading file:", filename)
 	re := regexp.MustCompile(".*/")
 	path := re.FindStringSubmatch(filename)
-	//path := filename[index[0]:index[1]]
-
-	err := os.MkdirAll(downloadDir+path[0], 0755)
-	if err != nil {
-		fmt.Println("Error while os.MkDirall()", err)
-		return err
+	fmt.Println(path)
+	if len(path) == 0 {
+		err := os.MkdirAll(downloadDir, 0755)
+		if err != nil {
+			fmt.Println("Error while os.MkDirall()", err)
+			return err
+		}
+	} else {
+		err := os.MkdirAll(downloadDir+path[0], 0755)
+		if err != nil {
+			fmt.Println("Error while os.MkDirall()", err)
+			return err
+		}
 	}
 
 	out, err := os.Create(downloadDir + filename)

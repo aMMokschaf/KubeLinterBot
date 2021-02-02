@@ -55,5 +55,9 @@ func RemoveDownloadedFiles(dir string, debug int) error {
 			return err
 		}
 	}
+	err = os.Remove(dir)
+	if err != nil {
+		return err
+	}
 	return nil
 }
