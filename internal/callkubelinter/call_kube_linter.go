@@ -27,6 +27,7 @@ func CheckForKubeLinterBinary() error {
 	defer f.Close()
 	if err != nil {
 		fmt.Println("Could not find KubeLinter. Please download the latest release: https://github.com/stackrox/kube-linter/releases", err)
+
 		return err
 	} else {
 		fmt.Println("KubeLinter found.")
