@@ -23,7 +23,7 @@ func Handle(data *parsehook.GeneralizedResult, result []byte, status error, dir 
 		if data.Number == 0 {
 			err = postcomment.Push(data.OwnerName, data.RepoName, data.Sha, result, client)
 		} else {
-			err = postcomment.PullRequestReview(data.OwnerName, data.RepoName, data.Sha, data.Number, result, client)
+			err = postcomment.PullRequestReview(data.BaseOwnerName, data.BaseRepoName, data.Sha, data.Number, data.AddedOrModifiedFiles, result, client)
 		}
 		if err != nil {
 			return err
