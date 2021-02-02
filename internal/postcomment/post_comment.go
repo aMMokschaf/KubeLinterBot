@@ -7,14 +7,13 @@ import (
 	"main/internal/authentication"
 
 	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 )
 
 //Push authorizes with github to post KubeLinter's results to the commit.
 func Push(username string, reponame string, commitSha string, result []byte, client *authentication.Client) error {
 	var bdy string = string(result)
 	comment := github.RepositoryComment{Body: &bdy}
-	_, _, err := client.GithubClient.Repositories.CreateComment(oauth2.NoContext, username, reponame, commitSha, &comment)
+	_, _, err := client.GithubClient.Repositories.CreateComment(context.Background(), username, reponame, commitSha, &comment)
 	if err != nil {
 		fmt.Println("Posting Kubelinter's comment failed, error:", err)
 		return err
