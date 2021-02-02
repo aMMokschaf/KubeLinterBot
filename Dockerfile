@@ -15,7 +15,7 @@ WORKDIR /cmd/kube-linter-bot/
 # Copy the code into the container
 COPY . .
 
-RUN go build -o kube-linter-bot ./cmd/kube-linter-bot/kube-linter-bot.go
+RUN go build -o kube-linter-bot ./cmd/kubelinterbot/kube-linter-bot.go
 
 EXPOSE 4567
 
