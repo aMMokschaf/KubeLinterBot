@@ -9,6 +9,8 @@ import (
 //GetCommit TODO Kommentar
 func GetCommit(result *parsehook.GeneralizedResult, client authentication.Client) {
 	fmt.Println("GetCommit")
+	fmt.Println(result)
+	fmt.Println(client)
 
 	DownloadCommit(result.OwnerName,
 		result.RepoName,

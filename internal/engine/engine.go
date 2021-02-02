@@ -33,6 +33,9 @@ func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) error {
 	if err != nil {
 		fmt.Println("Error while parsing hook:\n", err)
 		return err
+	}
+	if result == nil {
+		fmt.Println("Hook is of no interest to KubeLinterBot.\n KubeLinterBot is listening for Webhooks...")
 	} else {
 		commitSha = result.Sha
 
