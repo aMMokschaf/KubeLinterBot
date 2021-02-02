@@ -59,7 +59,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 //CreateClient creates and returns the Client-Object needed to login to github.
 func CreateClient(token string) *Client {
 	var c Client
-	c.personalAccessToken = extractTokenStringFromJSONToken(token) //"7e65e53df54c8383a7c4896a254ed78201faf64a"
+	c.personalAccessToken = extractTokenStringFromJSONToken(token)
 
 	tokenSource := &TokenSource{
 		AccessToken: c.personalAccessToken,
