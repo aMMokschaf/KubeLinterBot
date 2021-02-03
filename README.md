@@ -7,7 +7,7 @@ KubeLinterBot calls KubeLinter with one ore more .yaml or .yml, interprets KubeL
 ->Change _repository.reponame_, _repository.username_ and _bot.port_ according to your wishes.<-remove
 Generate a safe secret and add it as _user.secret_. You will need this later while installing the webhook(s).
 
-2. Generate a personal access token here: https://github.com/settings/tokens. If you don't want to generate a token now and your server has a browser you can use, you can ignore step 2 and later do step 4.1 instead.
+2. Generate a personal access token here: https://github.com/settings/tokens. If you don't want to generate a token now and your server has a browser you can use, you can skip step 2 now and later do step 5 instead.
 You will need to check the following options:
 >1. repo: If you want to lint private repositories, check _repo_. If you only want to lint public repositories, check public_repo
 >2. Not yet implemented: admin:repo_hook: If you want your webhook installed automatically, check this.
@@ -15,9 +15,9 @@ You will need to check the following options:
 
 3. Run **make build** in /KubeLinterBot/
 4. Run **./kube-linter-bot**
->1. Authorize with github in your browser on http://localhost:7000  
+5. (Skip if you did step 2): Authorize with github in your browser on http://localhost:7000  
 You can remove authorization in your github-account-settings.
-5. For every repository you want KubeLinterBot to watch, install a webhook (will be automated in future versions) here:
+6. For every repository you want KubeLinterBot to watch, install a webhook (will be automated in future versions) here:
 https://github.com/[owner-of-repository-name]/[your-repository]/settings/hooks
 and set these webhook-options:
 >1. **Payload URL**: Your kubelinterbot-server address
