@@ -11,27 +11,40 @@ import (
 	"net/http"
 )
 
-type analysisEngine struct{}
+//AnalysisEngine
+type AnalysisEngine struct{}
 
-//GetEngine returns the analysisEngine-Object.
-func GetEngine() *analysisEngine {
-	var ae analysisEngine
+//GetEngine returns the AnalysisEngine-Object.
+func GetEngine() *AnalysisEngine {
+	var ae AnalysisEngine
 	return &ae
 }
 
 //Analyse starts the processing of the payload of an incoming webhook.
-func (ae *analysisEngine) Analyse(r *http.Request, cfg config.Config) error {
+func (ae *AnalysisEngine) Analyse(r *http.Request, cfg config.Config) error {
 	var commitSha string
 	var token string = cfg.User.AccessToken
 	client := authentication.CreateClient(token)
 
-	result, err := parsehook.ParseHook(r, cfg.Repositories[0].Webhook.Secret, client)
+	// var result *parsehook.GeneralizedResult
+	// var err error
+	// for _, secret := range cfg.Repositories {
+	// 	fmt.Println("secret")
+	// 	result, err = parsehook.ParseHook(r, secret.Webhook.Secret, client, &cfg)
+	// 	if err != nil {
+	// 		fmt.Println("Error while parsing hook:\n", err)
+	// 		return err
+	// 	}
+	// }
+
+	//TODO make more secrets!
+	result, err := parsehook.ParseHook(r, cfg.User.Secret, client)
 	if err != nil {
 		fmt.Println("Error while parsing hook:\n", err)
 		return err
 	}
 	if result == nil {
-		fmt.Println("Hook is of no interest to KubeLinterBot.\n KubeLinterBot is listening for Webhooks...")
+		fmt.Println("Hook is of no interest to KubeLinterBot.\nKubeLinterBot is listening for Webhooks...")
 		return nil
 	} else {
 		commitSha = result.Sha

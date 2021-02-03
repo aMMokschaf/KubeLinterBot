@@ -13,6 +13,7 @@ type Config struct {
 	User struct {
 		Username    string `yaml:"username"`
 		AccessToken string `yaml:"accessToken"`
+		Secret      string `yaml:"secret"`
 	}
 	Bot struct {
 		Port int `yaml:"port"`
