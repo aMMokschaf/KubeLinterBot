@@ -4,7 +4,6 @@ KubeLinterBot calls KubeLinter with one ore more .yaml or .yml, interprets KubeL
 
 ## How to install
 1. If there is no file named _kube-linter-bot-configuration.yaml_ in the _KubeLinterBot_-folder, copy the sample-file from the samples-folder.
-->Change _repository.reponame_, _repository.username_ and _bot.port_ according to your wishes.<-remove
 Generate a safe secret and add it as _user.secret_. You will need this later while installing the webhook(s).
 
 2. Generate a personal access token here: https://github.com/settings/tokens. If you don't want to generate a token now and your server has a browser you can use, you can skip step 2 now and later do step 5 instead.
