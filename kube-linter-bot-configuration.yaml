@@ -1,6 +1,6 @@
 user:
   username: KubeLinterBot #nötig?
-  accessToken: '{"access_token":"ca4e2cedec5e6757c0268fa82872cdc7b14f322a","token_type":"bearer","expiry":"0001-01-01T00:00:00Z"}'
+  accessToken: '{"access_token":"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","token_type":"bearer","expiry":"0001-01-01T00:00:00Z"}'
 bot:
   port: 4567
 repositories:

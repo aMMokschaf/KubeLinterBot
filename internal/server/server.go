@@ -2,14 +2,22 @@
 package server
 
 import (
+	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"main/internal/config"
-	"main/internal/engine"
+	//"main/internal/engine"
+	"main/internal/authentication"
+
+	"encoding/csv"
+
+	"github.com/google/go-github/github"
 )
 
 //SetupServer sets up the http-server.
@@ -41,6 +49,7 @@ func newServer(cfg config.Config, options ...Option) *Server {
 
 	s.mux = http.NewServeMux()
 	s.mux.HandleFunc("/", s.index)
+	s.mux.HandleFunc("/eval", s.eval)
 
 	s.cfg = cfg
 	return s
@@ -58,12 +67,14 @@ func logWith(logger *log.Logger) Option {
 
 //ServeHTTP waits for a github-webhook and then blabla TODO
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ae := engine.GetEngine()
-	err := ae.Analyse(r, s.cfg)
-	if err != nil {
-		s.log("Something went wrong:\n", err)
-	}
-	//TODO response?
+	// ae := engine.GetEngine()
+	// err := ae.Analyse(r, s.cfg)
+	// if err != nil {
+	// 	s.log("Something went wrong:\n", err)
+	// }
+	// //TODO response?
+	//s.eval(w, r)
+	s.mux.ServeHTTP(w, r)
 }
 
 //log logs messages
@@ -73,5 +84,67 @@ func (s *Server) log(format string, v ...interface{}) {
 
 //TODO: Do i need this?
 func (s *Server) index(w http.ResponseWriter, r *http.Request) {
-	//w.Write([]byte("KubeLinterBot is running here."))
+	w.Write([]byte("KubeLinterBot is running here."))
+}
+
+//eval-function to get data from github
+func (s *Server) eval(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("eval-Funktion")
+	w.Write([]byte("KubeLinterBot-evaluation is running here."))
+
+	//client abrufen
+	var token string = s.cfg.User.AccessToken
+	client := authentication.CreateClient(token)
+
+	//query-package aufrufen, query erstellen
+	query := "extension:yaml OR extension:yml kubernetes OR k8s"
+	listoptions := &github.ListOptions{Page: 1, PerPage: 13}
+	options := &github.SearchOptions{Sort: "created", Order: "asc", ListOptions: *listoptions}
+	result, d, err := client.GithubClient.Search.Repositories(context.Background(), query, options)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("result:", result)
+		fmt.Println("d:", d)
+	}
+
+	fmt.Print("\n\n\n\n\n")
+
+	listoptions = &github.ListOptions{Page: 2, PerPage: 13}
+	options = &github.SearchOptions{Sort: "created", Order: "asc", ListOptions: *listoptions}
+	result, d, err = client.GithubClient.Search.Repositories(context.Background(), query, options)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("result:", result)
+		fmt.Println("d:", d)
+	}
+
+	//result in generalizedresult umbauen
+
+	//getcommit aufrufen
+
+	//ergebnis von getcommit an callkubelinter
+
+	//ergebnis von callkubelinter behandeln
+
+	//CSV definieren
+	columns := []string{
+		"reponame", "ownername", "error1", "error2",
+	}
+	writer := csv.NewWriter(os.Stdout) //change to file
+	if err := writer.Write(columns); err != nil {
+		log.Fatalln("error writing record to csv:", err)
+	}
+	writer.Flush()
+
+	//behandeltes ergebnis in CSV schreiben
+	if err := writer.Write(columns); err != nil {
+		log.Fatalln("error writing record to csv:", err)
+	}
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		log.Fatal(err)
+	}
 }
