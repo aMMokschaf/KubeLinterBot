@@ -14,6 +14,7 @@ import (
 	"main/internal/config"
 	//"main/internal/engine"
 	"main/internal/authentication"
+	"main/internal/parsehook"
 
 	"encoding/csv"
 
@@ -117,21 +118,24 @@ func (s *Server) eval(w http.ResponseWriter, r *http.Request) {
 			options.Page = resp.NextPage
 		}
 	}
-	for i, repo := range allRepos {
-		fmt.Println(i, "repo fullname", repo.Owner)
-	}
-
-	// fmt.Print("\n\n\n\n\n")
-
-	// listoptions = &github.ListOptions{Page: 2, PerPage: 13}
-	// options = &github.SearchOptions{Sort: "created", Order: "asc", ListOptions: *listoptions}
-	// result, resp, err = client.GithubClient.Search.Repositories(context.Background(), query, options)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// } else {
-	// 	fmt.Println("result:", result)
-	// 	fmt.Println("resp:", resp)
+	// for i, repo := range allRepos {
+	// 	fmt.Println(i, "repo fullname", repo.Owner)
 	// }
+	var genRes []parsehook.GeneralizedResult
+	var newRepo parsehook.GeneralizedResult
+	for _, repo := range allRepos {
+		newRepo.UserName = ""
+		newRepo.OwnerName = *repo.Owner.Login
+		newRepo.RepoName = *repo.Name
+		newRepo.BaseOwnerName = ""
+		newRepo.BaseRepoName = ""
+		newRepo.Branch = ""
+		id := strconv.Itoa(int(*repo.ID))
+		newRepo.Sha = id
+		newRepo.Number = 0
+		genRes = append(genRes, newRepo)
+	}
+	fmt.Println(genRes)
 
 	//result in generalizedresult umbauen
 
