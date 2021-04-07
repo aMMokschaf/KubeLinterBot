@@ -98,27 +98,40 @@ func (s *Server) eval(w http.ResponseWriter, r *http.Request) {
 
 	//query-package aufrufen, query erstellen
 	query := "extension:yaml OR extension:yml kubernetes OR k8s"
-	listoptions := &github.ListOptions{Page: 1, PerPage: 13}
+	//listoptions := &github.ListOptions{Page: 1, PerPage: 13}
+	listoptions := &github.ListOptions{PerPage: 100}
 	options := &github.SearchOptions{Sort: "created", Order: "asc", ListOptions: *listoptions}
-	result, d, err := client.GithubClient.Search.Repositories(context.Background(), query, options)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("result:", result)
-		fmt.Println("d:", d)
+	var allRepos []github.Repository
+	for {
+		result, resp, err := client.GithubClient.Search.Repositories(context.Background(), query, options)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			allRepos = append(allRepos, result.Repositories...)
+			if resp.NextPage == 0 {
+				break
+			}
+			if len(allRepos) >= 1001 {
+				break
+			}
+			options.Page = resp.NextPage
+		}
+	}
+	for i, repo := range allRepos {
+		fmt.Println(i, "repo fullname", repo.Owner)
 	}
 
-	fmt.Print("\n\n\n\n\n")
+	// fmt.Print("\n\n\n\n\n")
 
-	listoptions = &github.ListOptions{Page: 2, PerPage: 13}
-	options = &github.SearchOptions{Sort: "created", Order: "asc", ListOptions: *listoptions}
-	result, d, err = client.GithubClient.Search.Repositories(context.Background(), query, options)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("result:", result)
-		fmt.Println("d:", d)
-	}
+	// listoptions = &github.ListOptions{Page: 2, PerPage: 13}
+	// options = &github.SearchOptions{Sort: "created", Order: "asc", ListOptions: *listoptions}
+	// result, resp, err = client.GithubClient.Search.Repositories(context.Background(), query, options)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// } else {
+	// 	fmt.Println("result:", result)
+	// 	fmt.Println("resp:", resp)
+	// }
 
 	//result in generalizedresult umbauen
 
