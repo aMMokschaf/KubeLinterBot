@@ -9,9 +9,13 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
+	"main/internal/callkubelinter"
 	"main/internal/config"
+	"main/internal/getcommit"
+
 	//"main/internal/engine"
 	"main/internal/authentication"
 	"main/internal/parsehook"
@@ -66,7 +70,7 @@ func logWith(logger *log.Logger) Option {
 	}
 }
 
-//ServeHTTP waits for a github-webhook and then blabla TODO
+//ServeHTTP waits for a github-webhook and then errorString TODO
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// ae := engine.GetEngine()
 	// err := ae.Analyse(r, s.cfg)
@@ -112,56 +116,183 @@ func (s *Server) eval(w http.ResponseWriter, r *http.Request) {
 			if resp.NextPage == 0 {
 				break
 			}
-			if len(allRepos) >= 1001 {
+			//if len(allRepos) >= 1001 {
+			if len(allRepos) >= 1 {
 				break
 			}
 			options.Page = resp.NextPage
 		}
 	}
-	// for i, repo := range allRepos {
-	// 	fmt.Println(i, "repo fullname", repo.Owner)
-	// }
+
+	file, err := os.Create("data.csv")
+	if err != nil {
+		log.Fatalln("error creating csv:", err)
+	}
+	defer file.Close()
+
+	//CSV definieren
+	columns := []string{
+		"number",
+		"reponame",
+		"ownername",
+		"dangling-service",
+		"deprecated-service-account-field",
+		"drop-net-raw-capability",
+		"env-var-secret",
+		"mismatching selector",
+		"no-anti-affinity",
+		"no-extensions-v1beta",
+		"no-read-only-root-fs",
+		"non-existent-service-account",
+		"privileged-container",
+		"run-as-non-root",
+		"ssh-port",
+		"unset-cpu-requirements",
+		"unset-memory-requirements",
+	}
+
+	writer := csv.NewWriter(file)
+	if err := writer.Write(columns); err != nil {
+		log.Fatalln("error writing record to csv:", err)
+	}
+	writer.Flush()
+
 	var genRes []parsehook.GeneralizedResult
-	var newRepo parsehook.GeneralizedResult
 	for _, repo := range allRepos {
+		var newRepo parsehook.GeneralizedResult
 		newRepo.UserName = ""
 		newRepo.OwnerName = *repo.Owner.Login
 		newRepo.RepoName = *repo.Name
 		newRepo.BaseOwnerName = ""
 		newRepo.BaseRepoName = ""
-		newRepo.Branch = ""
+		newRepo.Branch = "master" //getBranch? Irgendwie mainBranch holen
 		id := strconv.Itoa(int(*repo.ID))
 		newRepo.Sha = id
 		newRepo.Number = 0
+
+		_, dir, _, err := client.GithubClient.Repositories.GetContents(context.Background(), newRepo.OwnerName, newRepo.RepoName, "", nil)
+		if err != nil {
+			fmt.Println("getcontents newRepo", err, newRepo.OwnerName, newRepo.RepoName)
+		}
+		//fmt.Println(dir)
+		for _, file := range dir {
+			filename := file.GetPath()
+			//fmt.Println("filename:", filename)
+			if strings.Contains(filename, ".yaml") || strings.Contains(filename, ".yml") {
+				newRepo.AddedOrModifiedFiles = append(newRepo.AddedOrModifiedFiles, filename)
+				fmt.Println(filename, "true")
+			}
+		}
 		genRes = append(genRes, newRepo)
 	}
-	fmt.Println(genRes)
+	//fmt.Println("dateinamen:", genRes[1].AddedOrModifiedFiles)
+	for i, repo := range genRes {
+		getcommit.GetCommit(&repo, *client)
 
-	//result in generalizedresult umbauen
+		erg, err := callkubelinter.CallKubelinter(repo.Sha)
+		if err != nil {
+			fmt.Println("kubelinter err", err)
+		}
+		fmt.Println("ergebnis:", string(erg))
 
-	//getcommit aufrufen
+		var errorArray [14]int
 
-	//ergebnis von getcommit an callkubelinter
+		errorMsgs := strings.Split(string(erg), "\n")
+		fmt.Println("errormsgs", errorMsgs[0], errorMsgs[1])
+		for _, msg := range errorMsgs {
+			if msg == "" {
+				fmt.Println("skip rest of loop, msg")
+				continue
+			}
+			fmt.Println("msg:", msg)
 
-	//ergebnis von callkubelinter behandeln
+			var indexBegin int = strings.Index(msg, "check: ")
+			if indexBegin == -1 {
+				break
+			}
+			var subString string = msg[indexBegin : len(msg)-1]
+			indexBegin = 7
+			var indexEnd int = strings.Index(subString, ",")
 
-	//CSV definieren
-	columns := []string{
-		"reponame", "ownername", "error1", "error2",
-	}
-	writer := csv.NewWriter(os.Stdout) //change to file
-	if err := writer.Write(columns); err != nil {
-		log.Fatalln("error writing record to csv:", err)
-	}
-	writer.Flush()
+			//var indexEnd int = strings.Index(msg[strings.Index(msg, ","):], ",")
+			// var indexEnd int = strings.Index(msg, ",")
+			// var blaString string = msg[indexEnd+1 : len(msg)-1]
+			// var indexBegin int = strings.Index(blaString, "check: ")
+			// indexBegin += 7 //sets index to begin of check-name
+			// fmt.Println("blastring:", blaString)
+			// indexEnd = strings.Index(blaString, ",")
+			var errorString string
+			fmt.Println("indexbegin", indexBegin, "indexEnd", indexEnd)
+			if indexBegin == -1 || indexEnd == -1 || indexEnd < indexBegin {
+				errorString = "none"
+			} else {
+				errorString = subString[indexBegin:indexEnd]
+			}
+			fmt.Println("errorstring:", errorString)
 
-	//behandeltes ergebnis in CSV schreiben
-	if err := writer.Write(columns); err != nil {
-		log.Fatalln("error writing record to csv:", err)
-	}
-	writer.Flush()
+			switch errorString {
+			case "dangling-service":
+				fmt.Println(errorString)
+				errorArray[0] += 1
+			case "deprecated-service-account-field":
+				fmt.Println(errorString)
+				errorArray[1] += 1
+			case "drop-net-raw-capability":
+				fmt.Println(errorString)
+				errorArray[2] += 1
+			case "env-var-secret":
+				fmt.Println(errorString)
+				errorArray[3] += 1
+			case "mismatching-selector":
+				fmt.Println(errorString)
+				errorArray[4] += 1
+			case "no-anti-affinity":
+				fmt.Println(errorString)
+				errorArray[5] += 1
+			case "no-extensons-v1beta":
+				fmt.Println(errorString)
+				errorArray[6] += 1
+			case "no-read-only-root-fs":
+				fmt.Println(errorString)
+				errorArray[7] += 1
+			case "non-existent-service-account":
+				fmt.Println(errorString)
+				errorArray[8] += 1
+			case "privileged-container":
+				fmt.Println(errorString)
+				errorArray[9] += 1
+			case "run-as-non-root":
+				fmt.Println(errorString)
+				errorArray[10] += 1
+			case "ssh-port":
+				fmt.Println(errorString)
+				errorArray[11] += 1
+			case "unset-cpu-requirements":
+				fmt.Println(errorString)
+				errorArray[12] += 1
+			case "unset-memory-requirements":
+				fmt.Println(errorString)
+				errorArray[13] += 1
+			default:
+				//Wert für keine Probleme?
+			}
+		}
+		fmt.Println(errorArray)
 
-	if err := writer.Error(); err != nil {
-		log.Fatal(err)
+		dataset := []string{strconv.Itoa(i), repo.RepoName, repo.OwnerName}
+		for i := range errorArray {
+			number := errorArray[i]
+			text := strconv.Itoa(number)
+			dataset = append(dataset, text)
+		}
+
+		if err := writer.Write(dataset); err != nil {
+			log.Fatalln("error writing record to csv:", err)
+		}
+		writer.Flush()
+
+		if err := writer.Error(); err != nil {
+			log.Fatal(err)
+		}
 	}
 }

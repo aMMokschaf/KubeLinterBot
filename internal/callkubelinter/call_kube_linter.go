@@ -8,9 +8,9 @@ import (
 )
 
 //CallKubelinter calls the kube-linter binary in kubelinter/-folder.
-func CallKubelinter() ([]byte, error) {
+func CallKubelinter(sha string) ([]byte, error) {
 	//TODO: Change folder?
-	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/")
+	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/"+sha)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Println("Kube-Linter has found problems with your files:", err)

@@ -50,7 +50,7 @@ func (ae *AnalysisEngine) Analyse(r *http.Request, cfg config.Config) error {
 		commitSha = result.Sha
 		getcommit.GetCommit(result, *client)
 
-		var lintResult, exitCode = callkubelinter.CallKubelinter()
+		var lintResult, exitCode = callkubelinter.CallKubelinter(commitSha)
 		handleresult.Handle(result, lintResult, exitCode, commitSha, client)
 	}
 	return nil
