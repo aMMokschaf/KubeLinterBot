@@ -25,13 +25,9 @@ func main() {
 	if err != nil {
 		os.Exit(-1)
 	}
-	//var wg sync.WaitGroup
 	//TODO: implement check if token is actually valid, not just "empty"
 	if cfg.User.AccessToken == "empty" {
-		//wg.Add(1)
-		/*go*/
-		authentication.RunAuth(*cfg) //&wg)
-		//wg.Wait()
+		authentication.RunAuth(*cfg)
 		cfg, err = config.OptionParser()
 		if err != nil {
 			fmt.Println("Could not read configuration-file. Please copy the file './samples/kube-linter-bot-configuration.yaml' to kube-linter-bots directory.")

@@ -36,7 +36,6 @@ func OptionParser() (*Config, error) {
 	var cfg Config
 	dat, err := ioutil.ReadFile("kube-linter-bot-configuration.yaml")
 	if err != nil {
-		//panic(err)
 		return nil, err
 	}
 	err = yaml.Unmarshal([]byte(dat), &cfg)

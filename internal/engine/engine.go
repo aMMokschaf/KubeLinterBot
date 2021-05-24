@@ -25,19 +25,6 @@ func (ae *AnalysisEngine) Analyse(r *http.Request, cfg config.Config) error {
 	var commitSha string
 	var token string = cfg.User.AccessToken
 	client := authentication.CreateClient(token)
-
-	// var result *parsehook.GeneralizedResult
-	// var err error
-	// for _, secret := range cfg.Repositories {
-	// 	fmt.Println("secret")
-	// 	result, err = parsehook.ParseHook(r, secret.Webhook.Secret, client, &cfg)
-	// 	if err != nil {
-	// 		fmt.Println("Error while parsing hook:\n", err)
-	// 		return err
-	// 	}
-	// }
-
-	//TODO make more secrets!
 	result, err := parsehook.ParseHook(r, cfg.User.Secret, client)
 	if err != nil {
 		fmt.Println("Error while parsing hook:\n", err)

@@ -9,7 +9,6 @@ import (
 
 //CallKubelinter calls the kube-linter binary in kubelinter/-folder.
 func CallKubelinter() ([]byte, error) {
-	//TODO: Change folder?
 	cmd := exec.Command("kubelinter/kube-linter", "lint", "./downloadedYaml/")
 	out, err := cmd.CombinedOutput()
 	if err != nil {

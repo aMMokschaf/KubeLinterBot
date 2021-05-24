@@ -50,7 +50,8 @@ func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *auth
 		var options = github.ListOptions{}
 
 		//TODO change parameters to above
-		files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Base.Repo.Owner.Login, payload.Repository.Name, int(payload.Number), &options)
+		//files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Base.Repo.Owner.Login, payload.Repository.Name, int(payload.Number), &options)
+		files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), result.BaseOwnerName, result.BaseRepoName, result.Number, &options) //check if this works
 		if err != nil {
 			fmt.Println("Error while getting filenames:\n", err, "\n", response)
 			return nil, err
@@ -148,6 +149,5 @@ func ParseHook(r *http.Request, secret string, client *authentication.Client) (*
 		}
 	}
 
-	//fmt.Println("ParseResult:", result)
 	return result, nil
 }

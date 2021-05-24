@@ -66,7 +66,6 @@ func PullRequestReview(username string, reponame string, commitSha string, numbe
 
 func separateComments(result []byte, commitSha string) ([]string, string) {
 	comments := strings.Split(string(result), "\n")
-	//fmt.Println("Split comments:", comments)
 	for i, comment := range comments {
 		if comment != "" {
 			comments[i] = cleanUpComment(comment, commitSha)

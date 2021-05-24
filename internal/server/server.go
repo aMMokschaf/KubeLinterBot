@@ -63,7 +63,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		s.log("Something went wrong:\n", err)
 	}
-	//TODO response?
 }
 
 //log logs messages
