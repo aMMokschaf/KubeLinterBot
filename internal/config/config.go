@@ -52,7 +52,7 @@ func WriteOptionsToFile(cfg Config) error {
 		log.Fatalf("error: %v", err)
 	}
 
-	err = ioutil.WriteFile("./kube-linter-bot-configuration.yaml", d, 0666) //TODO: Check permissions
+	err = ioutil.WriteFile("./kube-linter-bot-configuration.yaml", d, 0600) //TODO: Check permissions
 	if err != nil {
 		panic(err)
 	}

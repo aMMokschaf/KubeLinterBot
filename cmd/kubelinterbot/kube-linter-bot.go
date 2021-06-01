@@ -49,7 +49,7 @@ func mainCmd() error {
 		// os.Exit(-1)
 	}
 	// TODO: implement check if token is actually valid, not just "empty"
-	if cfg.User.AccessToken == "empty" {
+	if cfg.User.AccessToken == "empty" { // check against ""
 		authentication.RunAuth(*cfg)
 		cfg, err = config.OptionParser()
 		if err != nil {
