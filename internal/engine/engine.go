@@ -2,13 +2,14 @@ package engine
 
 import (
 	"fmt"
-	"main/internal/authentication"
-	"main/internal/callkubelinter"
-	"main/internal/config"
-	"main/internal/getcommit"
-	"main/internal/handleresult"
-	"main/internal/parsehook"
 	"net/http"
+
+	"github.com/aMMokschaf/KubeLinterBot/internal/authentication"
+	"github.com/aMMokschaf/KubeLinterBot/internal/callkubelinter"
+	"github.com/aMMokschaf/KubeLinterBot/internal/config"
+	"github.com/aMMokschaf/KubeLinterBot/internal/getcommit"
+	"github.com/aMMokschaf/KubeLinterBot/internal/handleresult"
+	"github.com/aMMokschaf/KubeLinterBot/internal/parsehook"
 )
 
 //AnalysisEngine
@@ -22,9 +23,8 @@ func GetEngine() *AnalysisEngine {
 
 //Analyse starts the processing of the payload of an incoming webhook.
 func (ae *AnalysisEngine) Analyse(r *http.Request, cfg config.Config) error {
-	var commitSha string
-	var token string = cfg.User.AccessToken
-	client := authentication.CreateClient(token)
+	token := cfg.User.AccessToken
+	client := authentication.CreateClient(token) // use single client for "fetcher"
 	result, err := parsehook.ParseHook(r, cfg.User.Secret, client)
 	if err != nil {
 		fmt.Println("Error while parsing hook:\n", err)
@@ -33,12 +33,13 @@ func (ae *AnalysisEngine) Analyse(r *http.Request, cfg config.Config) error {
 	if result == nil {
 		fmt.Println("Hook is of no interest to KubeLinterBot.\nKubeLinterBot is listening for Webhooks...")
 		return nil
-	} else {
-		commitSha = result.Sha
-		getcommit.GetCommit(result, *client)
-
-		var lintResult, exitCode = callkubelinter.CallKubelinter()
-		handleresult.Handle(result, lintResult, exitCode, commitSha, client)
 	}
+	dir, err := getcommit.GetCommit(result, *client)
+	if err != nil {
+		return err
+	}
+
+	lintResult, exitCode := callkubelinter.CallKubelinter(dir)
+	handleresult.Handle(result, lintResult, exitCode, dir, client)
 	return nil
 }

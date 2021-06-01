@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"main/internal/handleresult"
+	"github.com/aMMokschaf/KubeLinterBot/internal/handleresult"
 )
 
 /*TestRemoveDownloadedFiles creates:

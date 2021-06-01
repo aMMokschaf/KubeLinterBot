@@ -4,18 +4,30 @@ package postcomment
 import (
 	"context"
 	"fmt"
-	"main/internal/authentication"
 	"strings"
+
+	"github.com/aMMokschaf/KubeLinterBot/internal/authentication"
+	"github.com/aMMokschaf/KubeLinterBot/internal/parsehook"
 
 	"github.com/google/go-github/github"
 )
 
-//Push authorizes with github to post KubeLinter's results to the commit.
-func Push(username string, reponame string, commitSha string, result []byte, client *authentication.Client) error {
-	cleanResult, numberOfLintErrors := separateComments(result, commitSha)
-	fmt.Println("clean:", cleanResult, numberOfLintErrors)
+func PostComment(data *parsehook.GeneralizedResult, kubelinterOutput []byte, client *authentication.Client) error {
+	cleanResult, numberOfLintErrors := separateComments(kubelinterOutput, data.Sha) //numberoflinterrors umbenennen
 
-	var bdy string = string(result)
+	var err error
+	if data.Number == 0 {
+		err = push(data.OwnerName, data.RepoName, data.Sha, kubelinterOutput, client, cleanResult, numberOfLintErrors)
+	} else {
+		err = pullRequestReview(data.BaseOwnerName, data.BaseRepoName, data.Sha, data.Number, data.AddedOrModifiedFiles, kubelinterOutput, client, cleanResult, numberOfLintErrors)
+	}
+	return err
+}
+
+//Push authorizes with github to post KubeLinter's results to the commit.
+func push(username string, reponame string, commitSha string, result []byte, client *authentication.Client, cleanResult []string, numberOfLintErrors string) error {
+
+	var bdy string = strings.Join(cleanResult, "\n")
 	comment := github.RepositoryComment{Body: &bdy}
 	_, _, err := client.GithubClient.Repositories.CreateComment(context.Background(), username, reponame, commitSha, &comment)
 	if err != nil {
@@ -28,10 +40,8 @@ func Push(username string, reponame string, commitSha string, result []byte, cli
 }
 
 //PullRequestReview TODO blabla
-func PullRequestReview(username string, reponame string, commitSha string, number int, files []string, result []byte, client *authentication.Client) error {
+func pullRequestReview(username string, reponame string, commitSha string, number int, files []string, result []byte, client *authentication.Client, cleanResult []string, numberOfLintErrors string) error {
 	var comments []*github.DraftReviewComment
-
-	cleanResult, commentNumberOfLintErrors := separateComments(result, commitSha)
 
 	for _, file := range files {
 		var commentPath = file
@@ -50,7 +60,7 @@ func PullRequestReview(username string, reponame string, commitSha string, numbe
 		comments = append(comments, &comment)
 	}
 
-	body := "KubeLinter has found possible security- or production-readiness-errors. Please check the comments made by KubeLinterBot for each file.\n\n" + commentNumberOfLintErrors
+	body := "KubeLinter has found possible security- or production-readiness-errors. Please check the comments made by KubeLinterBot for each file.\n\n" + numberOfLintErrors
 	event := "REQUEST_CHANGES"
 	var review = github.PullRequestReviewRequest{
 		Body:     &body,

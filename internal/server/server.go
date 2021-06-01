@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"main/internal/config"
-	"main/internal/engine"
+	"github.com/aMMokschaf/KubeLinterBot/internal/config"
+	"github.com/aMMokschaf/KubeLinterBot/internal/engine"
 )
 
 //SetupServer sets up the http-server.
@@ -58,7 +58,7 @@ func logWith(logger *log.Logger) Option {
 
 //ServeHTTP waits for a github-webhook and then blabla TODO
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ae := engine.GetEngine()
+	ae := engine.GetEngine() // move ae to field of Server struct
 	err := ae.Analyse(r, s.cfg)
 	if err != nil {
 		s.log("Something went wrong:\n", err)

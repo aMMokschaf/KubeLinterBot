@@ -13,7 +13,7 @@ import (
 	"golang.org/x/oauth2"
 	githuboauth "golang.org/x/oauth2/github"
 
-	"main/internal/config"
+	"github.com/aMMokschaf/KubeLinterBot/internal/config"
 )
 
 var (
@@ -31,9 +31,6 @@ var (
 	oauthStateString = "thisshouldberandom" //TODO generate random string
 )
 
-//TODO struct
-var s http.Server
-
 //var waitGroup *sync.WaitGroup
 
 const htmlIndex = `<html><body>
@@ -42,15 +39,14 @@ Logging in with <a href="/login">GitHub</a>
 `
 
 //RunAuth is called if KubeLinterBot is not authorized.
-func RunAuth(cfg config.Config) { //wg *sync.WaitGroup) {
-	//waitGroup = wg
+func RunAuth(cfg config.Config) {
 	m := http.NewServeMux()
 	s := &http.Server{Addr: ":7000", Handler: m}
 	m.HandleFunc("/", handleMain)
 	m.HandleFunc("/login", handleGitHubLogin)
 	m.HandleFunc("/github_oauth_cb", handleGitHubCallback)
 	m.HandleFunc("/shutdown", func(w http.ResponseWriter, req *http.Request) {
-		handleShutdown(w, req) //, wg)
+		handleShutdown(w, req, s)
 	})
 	fmt.Print("Started running on http://127.0.0.1:7000\n")
 	fmt.Println(s.ListenAndServe())
@@ -112,7 +108,7 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 //handleShutdown is the handler for /shutdown.
-func handleShutdown(w http.ResponseWriter, r *http.Request) { //, wg *sync.WaitGroup) {
+func handleShutdown(w http.ResponseWriter, r *http.Request, s *http.Server) { //, wg *sync.WaitGroup) {
 	//wg.Done()
 	s.Shutdown(context.Background())
 }
