@@ -28,9 +28,7 @@ func DownloadCommit(ownername string, reponame string, commitSha string, branch 
 
 func download(ownername string, reponame string, subpath string, commitSha string, branch string, filenames []string, number int, client authentication.Client) (string, error) { // better: return downloadDir from this function and pass to caller
 	fmt.Println("Downloading contents...")
-	//fmt.Println(ownername, reponame, subpath, commitSha, branch, filenames, number, client)
 	downloadDir := mainDir + commitSha + "/"
-
 	fmt.Println("Downloaddir:", downloadDir)
 
 	branchRef, _, err := client.GithubClient.Repositories.GetBranch(context.Background(), ownername, reponame, branch) // add context parameter
@@ -56,9 +54,6 @@ func download(ownername string, reponame string, subpath string, commitSha strin
 
 func downloadSingleFile(data io.ReadCloser, downloadDir string, filename string) error {
 	fmt.Println("Downloading file:", filename)
-
-	// re := regexp.MustCompile(".*/") // move to global var
-	// path := re.FindStringSubmatch(filename)
 	dir := filepath.FromSlash(path.Dir(filename))
 
 	if dir == "" {
@@ -73,7 +68,7 @@ func downloadSingleFile(data io.ReadCloser, downloadDir string, filename string)
 		}
 	}
 
-	out, err := os.Create(downloadDir + filename) // filepath.Join
+	out, err := os.Create(filepath.Join(downloadDir, filename))
 	if err != nil {
 		return err
 	}

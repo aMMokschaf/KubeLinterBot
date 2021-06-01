@@ -25,14 +25,12 @@ func CallKubelinter(yamlDir string) ([]byte, error) {
 func CheckForKubeLinterBinary() error {
 	st, err := os.Stat("./kubelinter/kube-linter")
 
-	// f, err := os.Open("./kubelinter/kube-linter")
 	if err != nil {
 		fmt.Println("Could not find KubeLinter. Please download the latest release: https://github.com/stackrox/kube-linter/releases", err)
 
 		return err
 	}
 
-	// defer f.Close()
 	if st.Mode()&0111 == 0 {
 		return errors.New("kube-linter binary found, but is not executable")
 	}

@@ -26,7 +26,6 @@ func SetupServer(logger *log.Logger, cfg config.Config) *http.Server {
 
 //Server object.
 type Server struct {
-	mux    *http.ServeMux
 	logger *log.Logger
 	cfg    config.Config
 }
@@ -38,9 +37,6 @@ func newServer(cfg config.Config, options ...Option) *Server {
 	for _, o := range options {
 		o(s)
 	}
-
-	s.mux = http.NewServeMux()
-	s.mux.HandleFunc("/", s.index)
 
 	s.cfg = cfg
 	return s
@@ -68,9 +64,4 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 //log logs messages
 func (s *Server) log(format string, v ...interface{}) {
 	s.logger.Printf(format+"\n", v...)
-}
-
-//TODO: Do i need this?
-func (s *Server) index(w http.ResponseWriter, r *http.Request) {
-	//w.Write([]byte("KubeLinterBot is running here."))
 }

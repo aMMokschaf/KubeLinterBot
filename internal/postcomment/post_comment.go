@@ -69,7 +69,7 @@ func pullRequestReview(username string, reponame string, commitSha string, numbe
 	}
 
 	re, resp, err := client.GithubClient.PullRequests.CreateReview(context.Background(), username, reponame, int(number), &review)
-	fmt.Println("create review re", re, "\nresp", resp, "\nerr", err)
+	fmt.Println("create review re", re, "\nresp", resp, "\nerr", err) //entfernen
 
 	return nil
 }
@@ -81,13 +81,13 @@ func separateComments(result []byte, commitSha string) ([]string, string) {
 			comments[i] = cleanUpComment(comment, commitSha)
 		}
 	}
-	fmt.Println("End of separate:", comments[len(comments)-2])
+	//fmt.Println("End of separate:", comments[len(comments)-2])
 	return comments, comments[len(comments)-2]
 }
 
 func cleanUpComment(comment string, commitSha string) string {
-	fmt.Println("comment vorher:", comment)
+	//fmt.Println("comment vorher:", comment)
 	comment = strings.Replace(comment, "downloadedYaml/"+commitSha+"/", "", 1)
-	fmt.Println("comment nachher:", comment)
+	//fmt.Println("comment nachher:", comment)
 	return comment
 }

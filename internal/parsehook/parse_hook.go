@@ -52,8 +52,6 @@ func parseHookPullRequest(ctx context.Context, payload githubWebhook.PullRequest
 
 	var options = github.ListOptions{}
 
-	//TODO change parameters to above
-	//files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Base.Repo.Owner.Login, payload.Repository.Name, int(payload.Number), &options)
 	files, response, err := client.GithubClient.PullRequests.ListFiles(ctx, result.BaseOwnerName, result.BaseRepoName, result.Number, &options) //check if this works
 	if err != nil {
 		fmt.Println("Error while getting filenames:\n", err, "\n", response)
@@ -78,9 +76,6 @@ func parseHookPush(payload githubWebhook.PushPayload, client *authentication.Cli
 	result.AddedOrModifiedFiles = lookForYamlInArray(payload.HeadCommit.Added)
 	modifiedFiles := lookForYamlInArray(payload.HeadCommit.Modified)
 
-	// for _, file := range modifiedFiles {
-	// 	result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, file)
-	// }
 	result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, modifiedFiles...)
 
 	if len(result.AddedOrModifiedFiles) == 0 {
@@ -114,7 +109,7 @@ func lookForYamlInArray(filesInCommit []string) []string {
 //ParseHook checks the hook for githubWebhook.PushPayload or githubWebhook.PullRequestPayload
 //and passes the payloads to the appropriate methods. It ultimately returns
 //a list of modified files, a list of added files, and the commit-SHA.
-func ParseHook(r *http.Request, secret string, client *authentication.Client) (*GeneralizedResult, error) { //([]string, []string, string, string, PrSourceBranchInformation) {
+func ParseHook(r *http.Request, secret string, client *authentication.Client) (*GeneralizedResult, error) {
 	hook, err := githubWebhook.New(githubWebhook.Options.Secret(secret))
 	if err != nil {
 		return nil, err

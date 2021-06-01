@@ -87,20 +87,3 @@ func extractTokenStringFromJSONToken(completeToken string) string {
 		return tokenString
 	}
 }
-
-// type loggingRoundTripper struct{}
-
-// func (loggingRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-// 	fmt.Printf("Request: %s %s\n", req.Method, req.URL)
-// 	if req.Body != nil {
-// 		body, err := ioutil.ReadAll(req.Body)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		fmt.Printf("Body: %s\n", body)
-// 		req.Body = ioutil.NopCloser(bytes.NewReader(body))
-// 	}
-// 	resp, err := http.DefaultTransport.RoundTrip(req)
-// 	fmt.Printf("Response: %#v, %v\n", resp, err)
-// 	return resp, err
-// }
