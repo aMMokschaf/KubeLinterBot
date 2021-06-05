@@ -1,4 +1,4 @@
-//Package tests consists of multiple tests for critical components
+// Package tests consists of multiple tests for critical components
 package tests
 
 import (
@@ -7,10 +7,12 @@ import (
 	"os"
 	"testing"
 
-	"main/internal/handleresult"
+	"github.com/aMMokschaf/KubeLinterBot/internal/handleresult"
 )
 
-/*TestRemoveDownloadedFiles creates:
+/*
+
+TestRemoveDownloadedFiles creates:
 
 ./downloadedYAML/testfile.go,
 ./downloadedYAML/firstfolder/testfile2.go
@@ -37,15 +39,14 @@ func TestRemoveDownloadedFiles(t *testing.T) {
 		t.Error("Setting up TestRemoveDownloadedFiles failed.", err)
 	}
 
-	handleresult.RemoveDownloadedFiles("../downloadedYaml/", 0)
+	handleresult.RemoveDownloadedFiles("../downloadedYaml/")
 	f, err := os.Open("../downloadedYaml/")
 	if err != nil {
 		fmt.Println("Could not open folder.", err)
 	}
 	defer f.Close()
-
 	_, err = f.Readdirnames(1)
 	if err != io.EOF {
-		t.Error("Directory is not empty.")
+		t.Error("Directory is not empty.", err)
 	}
 }

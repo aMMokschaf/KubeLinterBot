@@ -1,81 +1,64 @@
-//Package getcommit is used to download all folders with .yaml and .yml-files.
+// Package getcommit is used to download all folders with .yaml and .yml-files.
 package getcommit
 
 import (
 	"context"
 	"fmt"
 	"io"
-	"main/internal/authentication"
 	"os"
-	"regexp"
+	"path"
+	"path/filepath"
+
+	"github.com/aMMokschaf/KubeLinterBot/internal/authentication"
 
 	"github.com/google/go-github/github"
 )
 
 const mainDir = "./downloadedYaml/"
 
-//DownloadCommit downloads all .yaml or .yml-files.
-//These are then passed to the KubeLinter-binary.
-func DownloadCommit(ownername string, reponame string, commitSha string, branch string, filenames []string, number int, client authentication.Client) ([]*github.RepositoryContent, error) {
-	err2 := download(ownername, reponame, "", commitSha, branch, filenames, number, client)
-	if err2 != nil {
-		return nil, err2
-	}
-	return nil, nil
-}
-
-func download(ownername string, reponame string, subpath string, commitSha string, branch string, filenames []string, number int, client authentication.Client) error {
+// DownloadCommit downloads all .yaml or .yml-files.
+func DownloadCommit(ownername string, reponame string, commitSha string, branch string, filenames []string, number int, client authentication.Client) (string, error) {
 	fmt.Println("Downloading contents...")
-	//fmt.Println(ownername, reponame, subpath, commitSha, branch, filenames, number, client)
-	var downloadDir string
-	if commitSha != "" {
-		downloadDir = mainDir + commitSha + "/"
-	} else {
-		downloadDir = mainDir + "_" + ownername + "_" + reponame
-	}
+	downloadDir := mainDir + commitSha + "/"
 	fmt.Println("Downloaddir:", downloadDir)
 
-	branchRef, _, err := client.GithubClient.Repositories.GetBranch(context.Background(), ownername, reponame, branch)
+	branchRef, _, err := client.GithubClient.Repositories.GetBranch(context.Background(), ownername, reponame, branch) // add context param
 	if err != nil {
-		fmt.Println("getbranch", err)
-		return err
+		return "", err
 	}
 
 	var options = github.RepositoryContentGetOptions{Ref: branchRef.GetName()}
 	for _, file := range filenames {
-		f, err := client.GithubClient.Repositories.DownloadContents(context.Background(), ownername, reponame, file, &options)
+		fmt.Println("Downloading file:", file)
+		f, err := client.GithubClient.Repositories.DownloadContents(context.Background(), ownername, reponame, file, &options) // add context param
 		if err != nil {
-			fmt.Println("Error downloadcontents", err)
-			return nil
+			return "", err
 		} else {
-			err := downloadSingleFile(f, downloadDir, file)
+			err := writeFileToDisk(f, downloadDir, file)
 			if err != nil {
-				fmt.Println("Error downloadSingleFile", err)
+				return "", err
 			}
 		}
 	}
-	return nil
+	return downloadDir, nil
 }
 
-func downloadSingleFile(data io.ReadCloser, downloadDir string, filename string) error {
-	fmt.Println("Downloading file:", filename)
+func writeFileToDisk(data io.ReadCloser, downloadDir string, filename string) error {
+	dir := filepath.FromSlash(path.Dir(filename))
 
-	re := regexp.MustCompile(".*/")
-	path := re.FindStringSubmatch(filename)
-
-	if len(path) == 0 {
-		err := os.MkdirAll(downloadDir, 0755)
+	if dir == "" {
+		err := os.MkdirAll(downloadDir, 0700)
 		if err != nil {
 			return err
 		}
 	} else {
-		err := os.MkdirAll(downloadDir+path[0], 0755)
+		err := os.MkdirAll(filepath.Join(downloadDir, dir), 0700)
 		if err != nil {
 			return err
 		}
 	}
 
-	out, err := os.Create(downloadDir + filename)
+	out, err := os.Create(filepath.Join(downloadDir, filename))
 	if err != nil {
 		return err
 	}

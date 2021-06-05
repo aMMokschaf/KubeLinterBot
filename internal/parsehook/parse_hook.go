@@ -1,19 +1,20 @@
-//Package parsehook parses a github-webhook. Push-Events and Pull-Request-Events are handled.
+// Package parsehook parses a github-webhook. Push-Events and Pull-Request-Events are handled.
 package parsehook
 
 import (
 	"context"
 	"fmt"
-	"main/internal/authentication"
 	"net/http"
 	"strings"
+
+	"github.com/aMMokschaf/KubeLinterBot/internal/authentication"
 
 	"github.com/google/go-github/github"
 	githubWebhook "gopkg.in/go-playground/webhooks.v5/github"
 )
 
-//GeneralizedResult is a representation of the fields of push- and pull-payloads that are
-//interesting for KLB.
+// GeneralizedResult is a representation of the fields of push- and pull-payloads that are
+// interesting for KLB.
 type GeneralizedResult struct {
 	UserName      string
 	OwnerName     string
@@ -27,65 +28,63 @@ type GeneralizedResult struct {
 	AddedOrModifiedFiles []string
 }
 
-//parseHookPullRequest gets a githubWebhook.PullRequestPayload and checks for .yml and .yaml-files
-func parseHookPullRequest(payload githubWebhook.PullRequestPayload, client *authentication.Client) (*GeneralizedResult, error) { //TODO sollte Pointer zurückgeben, damit nil returnt werden kann
-	fmt.Println("parse hook pull")
-	fmt.Println(payload)
-	var result GeneralizedResult
-	if payload.Action == "opened" ||
-		payload.Action == "edited" ||
-		payload.Action == "reopened" ||
-		payload.Action == "synchronized" {
-
-		//head are changes, base is "old"
-		result.UserName = payload.PullRequest.User.Login
-		result.OwnerName = payload.PullRequest.Head.Repo.Owner.Login
-		result.RepoName = payload.PullRequest.Head.Repo.Name
-		result.BaseOwnerName = payload.PullRequest.Base.Repo.Owner.Login
-		result.BaseRepoName = payload.PullRequest.Base.Repo.Name
-		result.Branch = payload.PullRequest.Head.Ref
-		result.Sha = payload.PullRequest.Head.Sha
-		result.Number = int(payload.Number)
-
-		var options = github.ListOptions{}
-
-		//TODO change parameters to above
-		//files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), payload.PullRequest.Base.Repo.Owner.Login, payload.Repository.Name, int(payload.Number), &options)
-		files, response, err := client.GithubClient.PullRequests.ListFiles(context.Background(), result.BaseOwnerName, result.BaseRepoName, result.Number, &options) //check if this works
-		if err != nil {
-			fmt.Println("Error while getting filenames:\n", err, "\n", response)
-			return nil, err
-		}
-
-		for _, file := range files {
-			if strings.Contains(*file.Filename, ".yml") || strings.Contains(*file.Filename, "yaml") {
-				result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, *file.Filename)
-			}
-		}
-		return &result, nil
+func (gr *GeneralizedResult) IsPush() bool {
+	if gr.Number == 0 {
+		return true
 	}
-	return nil, nil
+	return false
 }
 
-//parseHookPush gets a github.PushPayload and returns AddedFilenames, ModifiedFilenames,
-//and the commitSha that are parsed from the payload.
+// parseHookPullRequest gets a githubWebhook.PullRequestPayload and checks for .yml and .yaml-files
+func parseHookPullRequest(ctx context.Context, payload githubWebhook.PullRequestPayload, client *authentication.Client) (*GeneralizedResult, error) {
+	var result GeneralizedResult
+	if !(payload.Action == "opened" ||
+		payload.Action == "edited" ||
+		payload.Action == "reopened" ||
+		payload.Action == "synchronized") {
+		return nil, nil
+	}
+
+	// head are changes, base is "old"
+	result.UserName = payload.PullRequest.User.Login
+	result.OwnerName = payload.PullRequest.Head.Repo.Owner.Login
+	result.RepoName = payload.PullRequest.Head.Repo.Name
+	result.BaseOwnerName = payload.PullRequest.Base.Repo.Owner.Login
+	result.BaseRepoName = payload.PullRequest.Base.Repo.Name
+	result.Branch = payload.PullRequest.Head.Ref
+	result.Sha = payload.PullRequest.Head.Sha
+	result.Number = int(payload.Number)
+
+	var options = github.ListOptions{}
+
+	files, response, err := client.GithubClient.PullRequests.ListFiles(ctx, result.BaseOwnerName, result.BaseRepoName, result.Number, &options)
+	if err != nil {
+		fmt.Println("Error while getting filenames:\n", err, "\n", response)
+		return nil, err
+	}
+
+	for _, file := range files {
+		if strings.Contains(*file.Filename, ".yml") || strings.Contains(*file.Filename, "yaml") {
+			result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, *file.Filename)
+		}
+	}
+	return &result, nil
+}
+
+// parseHookPush gets a github.PushPayload and parses it to a GeneralizedResult-Object.
 func parseHookPush(payload githubWebhook.PushPayload, client *authentication.Client) (*GeneralizedResult, error) {
-	fmt.Println("parse hook push")
-	fmt.Println(payload)
 	var result = GeneralizedResult{}
 
 	result.AddedOrModifiedFiles = lookForYamlInArray(payload.HeadCommit.Added)
 	modifiedFiles := lookForYamlInArray(payload.HeadCommit.Modified)
 
-	for _, file := range modifiedFiles {
-		result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, file)
-	}
+	result.AddedOrModifiedFiles = append(result.AddedOrModifiedFiles, modifiedFiles...)
 
 	if len(result.AddedOrModifiedFiles) == 0 {
 		return nil, nil
 	} else {
 		commitSha := payload.HeadCommit.ID
-		branchRef := *&payload.Ref
+		branchRef := payload.Ref
 
 		result.RepoName = payload.Repository.Name
 		result.OwnerName = payload.Repository.Owner.Login
@@ -97,7 +96,7 @@ func parseHookPush(payload githubWebhook.PushPayload, client *authentication.Cli
 	}
 }
 
-//lookForYamlInArray looks for .yaml or .yml-files, adds them to a string-array and returns it.
+// lookForYamlInArray looks for .yaml or .yml-files, adds them to a string-array and returns it.
 func lookForYamlInArray(filesInCommit []string) []string {
 	var yamlFilenames []string
 	for i := 0; i < len(filesInCommit); i++ {
@@ -109,10 +108,10 @@ func lookForYamlInArray(filesInCommit []string) []string {
 	return yamlFilenames
 }
 
-//ParseHook checks the hook for githubWebhook.PushPayload or githubWebhook.PullRequestPayload
-//and passes the payloads to the appropriate methods. It ultimately returns
-//a list of modified files, a list of added files, and the commit-SHA.
-func ParseHook(r *http.Request, secret string, client *authentication.Client) (*GeneralizedResult, error) { //([]string, []string, string, string, PrSourceBranchInformation) {
+// ParseHook checks the hook for githubWebhook.PushPayload or githubWebhook.PullRequestPayload
+// and passes the payloads to the appropriate methods. It ultimately returns
+// a GeneralizedResult-Object.
+func ParseHook(r *http.Request, secret string, client *authentication.Client) (*GeneralizedResult, error) {
 	hook, err := githubWebhook.New(githubWebhook.Options.Secret(secret))
 	if err != nil {
 		return nil, err
@@ -121,7 +120,7 @@ func ParseHook(r *http.Request, secret string, client *authentication.Client) (*
 	payload, err := hook.Parse(r, githubWebhook.PushEvent, githubWebhook.PullRequestEvent)
 	if err != nil {
 		if err == githubWebhook.ErrEventNotFound {
-			//This happens if the webhook sends an event that is not push or pull-request.
+			// This happens if the webhook sends an event that is not push or pull-request.
 			fmt.Println("This event is neither a Push nor a Pull-request.\n", err)
 		}
 		return nil, err
@@ -129,21 +128,19 @@ func ParseHook(r *http.Request, secret string, client *authentication.Client) (*
 
 	var result *GeneralizedResult
 
-	switch payload.(type) {
+	switch p := payload.(type) {
 
 	case githubWebhook.PushPayload:
 		fmt.Println("Receiving Push-Payload.")
-		commit := payload.(githubWebhook.PushPayload)
-		result, err = parseHookPush(commit, client)
+		result, err = parseHookPush(p, client)
 		if err != nil {
 			return nil, err
 		}
-		result.Number = 0 //0 meaning push. If pull-request, this is a non-negative non-zero number.
+		result.Number = 0 // 0 meaning push. If pull-request, this is a non-negative non-zero number.
 
 	case githubWebhook.PullRequestPayload:
 		fmt.Println("Receiving Pull-Request-Payload.")
-		pullRequest := payload.(githubWebhook.PullRequestPayload)
-		result, err = parseHookPullRequest(pullRequest, client)
+		result, err = parseHookPullRequest(r.Context(), p, client)
 		if err != nil {
 			return nil, err
 		}

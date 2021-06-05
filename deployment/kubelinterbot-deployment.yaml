@@ -26,6 +26,12 @@ spec:
           allowPrivilegeEscalation: false
           runAsNonRoot: true
           readOnlyRootFilesystem: true
+        volumeMount:
+        - name: downloaded-yamls
+          path: /cmd/kube-linter-bot/downloadedYamls
+      volumes:
+      - name: downloaded-yamls
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

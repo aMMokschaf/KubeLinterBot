@@ -1,4 +1,4 @@
-module main
+module github.com/aMMokschaf/KubeLinterBot
 
 go 1.15
 
