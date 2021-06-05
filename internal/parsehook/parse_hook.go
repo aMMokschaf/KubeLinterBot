@@ -45,7 +45,7 @@ func parseHookPullRequest(ctx context.Context, payload githubWebhook.PullRequest
 		return nil, nil
 	}
 
-	//head are changes, base is "old"
+	// head are changes, base is "old"
 	result.UserName = payload.PullRequest.User.Login
 	result.OwnerName = payload.PullRequest.Head.Repo.Owner.Login
 	result.RepoName = payload.PullRequest.Head.Repo.Name
@@ -120,7 +120,7 @@ func ParseHook(r *http.Request, secret string, client *authentication.Client) (*
 	payload, err := hook.Parse(r, githubWebhook.PushEvent, githubWebhook.PullRequestEvent)
 	if err != nil {
 		if err == githubWebhook.ErrEventNotFound {
-			//This happens if the webhook sends an event that is not push or pull-request.
+			// This happens if the webhook sends an event that is not push or pull-request.
 			fmt.Println("This event is neither a Push nor a Pull-request.\n", err)
 		}
 		return nil, err
@@ -136,7 +136,7 @@ func ParseHook(r *http.Request, secret string, client *authentication.Client) (*
 		if err != nil {
 			return nil, err
 		}
-		result.Number = 0 //0 meaning push. If pull-request, this is a non-negative non-zero number.
+		result.Number = 0 // 0 meaning push. If pull-request, this is a non-negative non-zero number.
 
 	case githubWebhook.PullRequestPayload:
 		fmt.Println("Receiving Pull-Request-Payload.")

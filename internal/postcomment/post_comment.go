@@ -45,7 +45,7 @@ func pullRequestReview(username string, reponame string, commitSha string, numbe
 
 	for _, file := range files {
 		var commentPath = file
-		var commentPosition = 1 //indicating line 1, to be changed in future releases to accomodate real line numbers
+		var commentPosition = 1 // indicating line 1, to be changed in future releases to accomodate real line numbers
 		var commentBody string
 		for i := 0; i < len(separatedComments); i++ {
 			if strings.Contains(separatedComments[i], file) {
