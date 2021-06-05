@@ -1,4 +1,4 @@
-//Package callkubelinter checks if the KubeLinter-binary exists, updates and executes it.
+// Package callkubelinter checks if the KubeLinter-binary exists, updates and executes it.
 package callkubelinter
 
 import (
@@ -8,20 +8,20 @@ import (
 	"os/exec"
 )
 
-//CallKubelinter calls the kube-linter binary in kubelinter/-folder.
-func CallKubelinter(yamlDir string) ([]byte, error) {
-	cmd := exec.Command("kubelinter/kube-linter", "lint", yamlDir)
+// CallKubelinter calls the kube-linter binary in kubelinter/-folder.
+func CallKubelinter(dir string) ([]byte, error) {
+	cmd := exec.Command("kubelinter/kube-linter", "lint", dir)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Kube-Linter has found problems with your files:", err)
-		fmt.Printf("%s\n", out)
+		fmt.Println("Kube-Linter has found problems with the files. Please refer to KubeLinterBot's comments on Github for further information.")
+		//fmt.Printf("%s\n", out)
 	} else {
-		fmt.Println("Kube-Linter has not found any problems with your files.")
+		fmt.Println("Kube-Linter has not found any problems with the files.")
 	}
 	return out, err
 }
 
-//CheckForKubeLinterBinary checks if a Kubelinter-binary exists in /Kubelinterbot/kubelinter/.
+// CheckForKubeLinterBinary checks if a Kubelinter-binary exists in /Kubelinterbot/kubelinter/.
 func CheckForKubeLinterBinary() error {
 	st, err := os.Stat("./kubelinter/kube-linter")
 
@@ -38,9 +38,9 @@ func CheckForKubeLinterBinary() error {
 	return nil
 }
 
-//export after implementation. Security issues? Maybe only check for new version, no download.
+// TODO: export after implementation. Security issues? Maybe only check for new version, no download.
 func checkForKubeLinterUpdate() {
-	//get KubeLinter-Version
-	//compare to latest release
-	//update: automatically? How to make sure that linting is not affected?
+	// get KubeLinter-Version
+	// compare to latest release
+	// update: automatically? How to make sure that linting is not affected?
 }

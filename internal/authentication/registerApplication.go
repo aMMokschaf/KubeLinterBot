@@ -1,5 +1,5 @@
-//Package authentication is responsible for registering KubeLinterBot to a github-Repository.
-//It also handles functions related to the oauth-token like serializing it or reading it again.
+// Package authentication is responsible for registering KubeLinterBot to a github-Repository.
+// It also handles functions related to the oauth-token like serializing it or reading it again.
 package authentication
 
 import (
@@ -31,14 +31,12 @@ var (
 	oauthStateString = "thisshouldberandom" //TODO generate random string
 )
 
-//var waitGroup *sync.WaitGroup
-
 const htmlIndex = `<html><body>
 Logging in with <a href="/login">GitHub</a>
 </body></html>
 `
 
-//RunAuth is called if KubeLinterBot is not authorized.
+// RunAuth is called if KubeLinterBot is not authorized.
 func RunAuth(cfg config.Config) {
 	m := http.NewServeMux()
 	s := &http.Server{Addr: ":7000", Handler: m}
@@ -107,13 +105,13 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/shutdown", http.StatusTemporaryRedirect)
 }
 
-//handleShutdown is the handler for /shutdown.
+// handleShutdown is the handler for /shutdown.
 func handleShutdown(w http.ResponseWriter, r *http.Request, s *http.Server) { //, wg *sync.WaitGroup) {
 	//wg.Done()
 	s.Shutdown(context.Background())
 }
 
-//tokenToJSON converts a oauth2.Token to a JSON-String.
+// tokenToJSON converts a oauth2.Token to a JSON-String.
 func tokenToJSON(token *oauth2.Token) (string, error) {
 	if d, err := json.Marshal(token); err != nil {
 		return "", errors.Wrap(err, "marshaling token as JSON")
@@ -122,7 +120,7 @@ func tokenToJSON(token *oauth2.Token) (string, error) {
 	}
 }
 
-//tokenFromJSON parses a JSON-string to a oauth2.Token.
+// tokenFromJSON parses a JSON-string to a oauth2.Token.
 func tokenFromJSON(jsonStr string) (*oauth2.Token, error) {
 	var token oauth2.Token
 	if err := json.Unmarshal([]byte(jsonStr), &token); err != nil {

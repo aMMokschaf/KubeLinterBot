@@ -1,18 +1,17 @@
-//Package authentication is responsible for registering KubeLinterBot to a github-Repository.
-//It also handles functions related to the oauth-token like serializing it or reading it again.
+// Package authentication is responsible for registering KubeLinterBot to a github-Repository.
+// It also handles functions related to the oauth-token like serializing it or reading it again.
 package authentication
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
 
-//Client lets KLB login to github.
+// Client lets KLB login to github.
 type Client struct {
 	jsonToken           string
 	personalAccessToken string
@@ -20,17 +19,17 @@ type Client struct {
 	GithubClient        *github.Client
 }
 
-//GetToken returns the access-token as a string, without bearer and expiry.
+// GetToken returns the access-token as a string, without bearer and expiry.
 func (ao *Client) GetToken() string {
 	return ao.personalAccessToken
 }
 
-//GetJSONToken returns the access-token as a JSON-string, with bearer and expiry.
+// GetJSONToken returns the access-token as a JSON-string, with bearer and expiry.
 func (ao *Client) GetJSONToken() string {
 	return ao.jsonToken
 }
 
-//SetJSONToken sets the access-token as a JSON-string, with bearer and expiry.
+// SetJSONToken sets the access-token as a JSON-string, with bearer and expiry.
 func (ao *Client) SetJSONToken(token string) {
 	ao.jsonToken = token
 }
@@ -43,12 +42,12 @@ func (ao *Client) getOAuthClient() *http.Client {
 	return ao.oauthClient
 }
 
-//TokenSource must be implemented for oauth.
+// TokenSource must be implemented for oauth.
 type TokenSource struct {
 	AccessToken string
 }
 
-//Token must be implemented for oauth.
+// Token must be implemented for oauth.
 func (t *TokenSource) Token() (*oauth2.Token, error) {
 	token := &oauth2.Token{
 		AccessToken: t.AccessToken,
@@ -56,7 +55,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
-//CreateClient creates and returns the Client-Object needed to login to github.
+// CreateClient creates and returns the Client-Object needed to login to github.
 func CreateClient(token string) *Client {
 	var c Client
 	c.personalAccessToken = extractTokenStringFromJSONToken(token)
@@ -65,9 +64,9 @@ func CreateClient(token string) *Client {
 		AccessToken: c.personalAccessToken,
 	}
 
-	c.oauthClient = oauth2.NewClient(context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{ /*Transport: loggingRoundTripper{}*/ }), tokenSource)
+	c.oauthClient = oauth2.NewClient(context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{}), tokenSource)
 	c.GithubClient = github.NewClient(c.oauthClient)
-	fmt.Println("Client:", c)
+	//fmt.Println("Client:", c)
 	return &c
 }
 

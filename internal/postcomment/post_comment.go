@@ -1,4 +1,4 @@
-//Package postcomment handles the posting of comments with KubeLinter's linting-results to the appropriate commit.
+// Package postcomment handles the posting of comments with KubeLinter's linting-results to the appropriate commit.
 package postcomment
 
 import (
@@ -12,21 +12,21 @@ import (
 	"github.com/google/go-github/github"
 )
 
+// PostComment pre-processes the output of KubeLinter and chooses the correct comment-method for commits and pull-requests.
 func PostComment(data *parsehook.GeneralizedResult, kubelinterOutput []byte, client *authentication.Client) error {
-	cleanResult, numberOfLintErrors := separateComments(kubelinterOutput, data.Sha) //numberoflinterrors umbenennen
+	separatedComments, errorCountString := separateComments(kubelinterOutput, data.Sha)
 
 	var err error
-	if data.Number == 0 {
-		err = push(data.OwnerName, data.RepoName, data.Sha, kubelinterOutput, client, cleanResult, numberOfLintErrors)
+	if data.IsPush() {
+		err = push(data.OwnerName, data.RepoName, data.Sha, kubelinterOutput, client, separatedComments, errorCountString)
 	} else {
-		err = pullRequestReview(data.BaseOwnerName, data.BaseRepoName, data.Sha, data.Number, data.AddedOrModifiedFiles, kubelinterOutput, client, cleanResult, numberOfLintErrors)
+		err = pullRequestReview(data.BaseOwnerName, data.BaseRepoName, data.Sha, data.Number, data.AddedOrModifiedFiles, kubelinterOutput, client, separatedComments, errorCountString)
 	}
 	return err
 }
 
-//Push authorizes with github to post KubeLinter's results to the commit.
+// push is used to post a comment to a whole commit.
 func push(username string, reponame string, commitSha string, result []byte, client *authentication.Client, cleanResult []string, numberOfLintErrors string) error {
-
 	var bdy string = strings.Join(cleanResult, "\n")
 	comment := github.RepositoryComment{Body: &bdy}
 	_, _, err := client.GithubClient.Repositories.CreateComment(context.Background(), username, reponame, commitSha, &comment)
@@ -39,17 +39,17 @@ func push(username string, reponame string, commitSha string, result []byte, cli
 	}
 }
 
-//PullRequestReview TODO blabla
-func pullRequestReview(username string, reponame string, commitSha string, number int, files []string, result []byte, client *authentication.Client, cleanResult []string, numberOfLintErrors string) error {
+// pullRequestReview is used to post a review for a Pull-Request.
+func pullRequestReview(username string, reponame string, commitSha string, number int, files []string, result []byte, client *authentication.Client, separatedComments []string, errorCountString string) error {
 	var comments []*github.DraftReviewComment
 
 	for _, file := range files {
 		var commentPath = file
-		var commentPosition = 1 //indicating line 1
+		var commentPosition = 1 //indicating line 1, to be changed in future releases to accomodate real line numbers
 		var commentBody string
-		for i := 0; i < len(cleanResult); i++ {
-			if strings.Contains(cleanResult[i], file) {
-				commentBody += cleanResult[i] + "\n\n"
+		for i := 0; i < len(separatedComments); i++ {
+			if strings.Contains(separatedComments[i], file) {
+				commentBody += separatedComments[i] + "\n\n"
 			}
 		}
 		var comment = github.DraftReviewComment{}
@@ -60,7 +60,7 @@ func pullRequestReview(username string, reponame string, commitSha string, numbe
 		comments = append(comments, &comment)
 	}
 
-	body := "KubeLinter has found possible security- or production-readiness-errors. Please check the comments made by KubeLinterBot for each file.\n\n" + numberOfLintErrors
+	body := "KubeLinter has found possible security- or production-readiness-errors. Please check the comments made by KubeLinterBot for each file.\n\n" + errorCountString
 	event := "REQUEST_CHANGES"
 	var review = github.PullRequestReviewRequest{
 		Body:     &body,
@@ -68,12 +68,15 @@ func pullRequestReview(username string, reponame string, commitSha string, numbe
 		Comments: comments,
 	}
 
-	re, resp, err := client.GithubClient.PullRequests.CreateReview(context.Background(), username, reponame, int(number), &review)
-	fmt.Println("create review re", re, "\nresp", resp, "\nerr", err) //entfernen
+	_, _, err := client.GithubClient.PullRequests.CreateReview(context.Background(), username, reponame, int(number), &review)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
+// separateComments splits Kubelinter's output to separate error messages.
 func separateComments(result []byte, commitSha string) ([]string, string) {
 	comments := strings.Split(string(result), "\n")
 	for i, comment := range comments {
@@ -81,13 +84,11 @@ func separateComments(result []byte, commitSha string) ([]string, string) {
 			comments[i] = cleanUpComment(comment, commitSha)
 		}
 	}
-	//fmt.Println("End of separate:", comments[len(comments)-2])
 	return comments, comments[len(comments)-2]
 }
 
+// cleanUpComment removes the leading "downloadedYaml/[commitSha]/ that is not part of the linted repository."
 func cleanUpComment(comment string, commitSha string) string {
-	//fmt.Println("comment vorher:", comment)
 	comment = strings.Replace(comment, "downloadedYaml/"+commitSha+"/", "", 1)
-	//fmt.Println("comment nachher:", comment)
 	return comment
 }
