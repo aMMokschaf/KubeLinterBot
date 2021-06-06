@@ -7,7 +7,7 @@ KubeLinterBot calls KubeLinter with one ore more .yaml or .yml, interprets KubeL
 Decide which port KubeLinterBot should listen on and copy it to _bot.port_.
 Generate a safe secret and add it as _user.secret_. You will need this later while installing the webhook(s).
 
-2. Generate a personal access token here: https://github.com/settings/tokens. If you don't want to generate a token now and your server has a browser you can use, you can skip step 2 now and later do step 5 instead.
+2. Generate a personal access token here: https://github.com/settings/tokens. If you don't want to generate a token now and your server has a browser you can use, you can skip step 2 now and later do step 5 instead. Note: This feature is experimental and i do not recommend using it. I recommend using step 2 and skipping step 5.
 You will need to check the following options:
 >1. repo: If you want to lint private repositories, check _repo_. If you only want to lint public repositories, check public_repo
 >2. Not yet implemented: admin:repo_hook: If you want your webhook installed automatically, check this.
