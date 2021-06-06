@@ -28,6 +28,8 @@ type GeneralizedResult struct {
 	AddedOrModifiedFiles []string
 }
 
+// IsPush is used to find out if a GeneralizedResult is from a commit
+// or a pull-request.
 func (gr *GeneralizedResult) IsPush() bool {
 	if gr.Number == 0 {
 		return true

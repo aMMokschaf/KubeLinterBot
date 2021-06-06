@@ -1,4 +1,4 @@
-// Package tests consists of multiple tests for critical components
+// Package tests consists of tests for critical components that are not unit-tests.
 package tests
 
 import (
