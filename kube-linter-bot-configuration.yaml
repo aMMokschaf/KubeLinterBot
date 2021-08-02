@@ -1,6 +1,6 @@
 user:
   username: KubeLinterBot
-  accessToken: '{"access_token":"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","token_type":"bearer","expiry":"0001-01-01T00:00:00Z"}'
+  accessToken: ''
   secret: "testsecret"
 bot:
   port: 4567
